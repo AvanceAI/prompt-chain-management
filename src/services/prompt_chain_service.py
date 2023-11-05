@@ -1,5 +1,5 @@
 from src.models.prompt_chain import PromptChain
-from src.repository.json_repository import JsonRepository
+from src.repository.prompt_db.json_repository import JsonRepository
 
 class PromptChainService:
     def __init__(self, repository: JsonRepository):

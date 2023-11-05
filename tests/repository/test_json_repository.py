@@ -1,6 +1,6 @@
 import json
 import pytest
-from src.repository.json_repository import JsonRepository 
+from src.repository.prompt_db.json_repository import JsonRepository 
 
 @pytest.fixture()
 def prompt_chain_data():

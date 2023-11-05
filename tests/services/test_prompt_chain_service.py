@@ -1,6 +1,6 @@
 import pytest
 from src.services.prompt_chain_service import PromptChainService
-from src.repository.json_repository import JsonRepository
+from src.repository.prompt_db.json_repository import JsonRepository
 
 # Fixture to mock the database file interaction
 @pytest.fixture
