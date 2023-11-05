@@ -4,13 +4,13 @@ from src.repository.json_repository import JsonRepository
 
 @pytest.fixture()
 def prompt_chain_data():
-    with open("tests/repository/prompt_chain_fixture.json", "r") as f:
+    with open("tests/data/prompt_chain_fixture.json", "r") as f:
         data = json.load(f)
     return data
 
 @pytest.fixture()
 def repository_instance():
-    db = JsonRepository(filename="tests/repository/prompt_chain_fixture.json")
+    db = JsonRepository(filename="tests/data/prompt_chain_fixture.json")
     return db
 
 def test_save_prompt_chain(repository_instance, prompt_chain_data):
