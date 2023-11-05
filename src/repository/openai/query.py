@@ -51,21 +51,24 @@ class Query:
         return response
     
     def run(self, prompt=None, data=None, eval_literal=True):
-        assert not (prompt is None and data is None), "prompt and data cannot both be None"
-        
-        if isinstance(data, dict):
-            data = json.dumps(data, indent=4)
-        elif isinstance(data, list):
-            data = str(data)
+        if prompt is None and data is None:
+            chatbot_response = self._send(messages=self.messages)["choices"][0]["message"].to_dict()
+            self.messages.append(chatbot_response)
+            return chatbot_response["content"]
         else:
-            pass
-        
-        if data is None:
-            message = prompt
-        elif prompt is not None and data is not None:
-            message = prompt + '\n\n\n\n' + data
-        else:
-            message = data
+            if isinstance(data, dict):
+                data = json.dumps(data, indent=4)
+            elif isinstance(data, list):
+                data = str(data)
+            else:
+                pass
+            
+            if data is None:
+                message = prompt
+            elif prompt is not None and data is not None:
+                message = prompt + '\n\n\n\n' + data
+            else:
+                message = data
         
         res = self.send_message(message=message)
         if eval_literal:

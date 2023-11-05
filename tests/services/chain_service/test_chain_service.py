@@ -48,7 +48,7 @@ async def test_execute_chain(mock_repository):
     }
     service.create_chain(chain_data)
 
-    with pytest.raises(NotImplementedError) as excinfo:
+    with pytest.raises(AttributeError) as excinfo:
         # "llm-query" step type is not yet implemented
         await service.execute_chain("test_chain_execute")
 

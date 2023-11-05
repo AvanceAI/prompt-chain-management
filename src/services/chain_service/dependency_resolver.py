@@ -15,4 +15,5 @@ class DependencyResolver:
             dep_key = dependency.name
             if dependency.class_ == 'user_entry':
                 dependencies[dep_key] = self.user_interface(dep_key)
+        print("DEP IN RESOLVER", dependencies)
         return dependencies

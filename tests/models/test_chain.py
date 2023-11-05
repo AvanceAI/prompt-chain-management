@@ -1,6 +1,6 @@
 import json
 import pytest
-from src.models.chain import Step, Chain, Dependency, Output, Action
+from src.models.chain import Step, Chain, Dependency, Output, Action, QueryParams
 
 @pytest.fixture()
 def chain_data(): 
@@ -73,3 +73,47 @@ def test_step_actions_list(step_data):
     assert step.actions[0].type == "select"
     assert step.actions[0].data == "themes"
 
+def test_create_step_with_query_params():
+    data = {
+        "step_id": "find-themes",
+        "description": "Analyzes the search results and finds the most common themes, which are then presented to the user to refine the article topic.",
+        "step_type": "llm-query",
+        "query_params": {
+            "model": "gpt-4",
+            "temperature": 0,
+            "max_tokens": 1000,
+            "top_p": 1,
+            "frequency_penalty": 0,
+            "presence_penalty": 0
+          },
+        "prompt_text": "I have a list of search results related to the topic \"{topic}\". Please analyze the following data and group the results into 3-4 thematic categories based on their content and purpose. You may ignore uncommon themes and focus on the most prominent categories presented in these results. Here is the data:\n\n\n{search_results}\n\n\nBased on the titles and descriptions, please provide a brief overview of each identified category and list which entries (by their number) belong to each category.\n\nFormat your response like this.\n\nResponse:\n{\n\"0\": {\n       \"theme\": \"First theme identified\",\n       \"results\": [0, 4, 5, 7, 9] \n       },\n\"1\": {\n       \"theme\": \"First theme identified\",\n       \"results\": [1,8,11,13] \n       },\n\"2\": {\n       \"theme\": \"First theme identified\",\n       \"results\": [2,3, 6] \n       }\n}\n\n\nResponse:\n",
+        "response_type": "json",
+        "dependencies": [
+          {
+            "name": "topic",
+            "type": "str",
+            "class": "input"
+          },
+          {
+            "name": "search_results",
+            "type": "json",
+            "class": "input"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "themes",
+            "type": "json",
+            "class": "output"
+          }
+        ],
+        "actions": [
+          {
+            "name": "select-preferred-theme",
+            "type": "select",
+            "data": "themes"
+          }
+        ]
+      }
+    step = Step(**data)
+    assert isinstance(step.query_params, QueryParams)
