@@ -1,5 +1,5 @@
 from typing import List, Union
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, constr
 
 class Dependency(BaseModel):
     name: str = Field(..., description="The name of the dependency.")
@@ -19,7 +19,7 @@ class Action(BaseModel):
 class Step(BaseModel):
     step_id: str = Field(..., description="Unique identifier for the Step.")
     description: str = Field(..., description="The description of the Step.")
-    step_type: Union[str, None] = Field(None, description="Type of the Step.")
+    step_type: constr(regex='^(search|llm-query)$') = Field(..., description="The type of the Step, either 'search' or 'llm-query'.")
     prompt_text: Union[str, None] = Field(None, description="The prompt text if applicable.")
     response_type: str = Field(..., description="Expected response type.", enum=["text", "json"])
     dependencies: List[Dependency] = Field(default_factory=list, description="List of dependencies that this Step relies on.")
