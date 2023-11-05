@@ -3,6 +3,9 @@
 IMAGE_NAME="prompt-chain-management"
 CONTAINER_NAME="prompt-chain-management-test"
 
+# Use the first argument as the directory where tests will be run, default to '/tests'
+TEST_DIR=${1:-./}
+
 # Define a cleanup function
 cleanup() {
   echo "Cleaning up..."
@@ -28,8 +31,8 @@ echo "Waiting for the server to start..."
 sleep 1
 
 # Execute the tests with pytest
-echo "Running tests..."
-if ! docker exec $CONTAINER_NAME pytest -s; then
+echo "Running tests in directory: $TEST_DIR"
+if ! docker exec $CONTAINER_NAME pytest -s $TEST_DIR; then
   echo "Tests failed. See error logs above."
   exit 1
 fi
