@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag prompt-chain-management:latest
+    - name: Run the Docker image
+      run: |
+        docker run --name prompt-chain-management -d -p 8000:80 prompt-chain-management:latest
+        # Wait for a few seconds to ensure that the server is up
+        sleep 5
+    - name: Execute tests with pytest
+      run: docker exec prompt-chain-management pytest
