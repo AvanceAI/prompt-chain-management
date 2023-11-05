@@ -1,14 +1,13 @@
-from src.models.chain import Chain, Step
+from src.services.chain_service.step_execution.step_executor import StepExecutor
 from src.repository.prompt_db.json_repository import JsonRepository
-from src.services.chain_service.step_execution.search_executor import SearchExecutor
-from src.services.chain_service.dependency_resolver import DependencyResolver
+from src.models.chain import Chain
 
 class ChainService:
-    def __init__(self, run_id, repository: JsonRepository, save_dir="outputs", dependency_resolver=None):
+    def __init__(self, run_id, repository: JsonRepository, save_dir="outputs"):
         self.run_id = run_id
-        self.repository = repository 
+        self.repository = repository
         self.save_dir = save_dir
-        self.dependency_resolver = dependency_resolver or DependencyResolver()
+        self.step_executor = StepExecutor(run_id, save_dir)
 
     def create_chain(self, chain_data: dict) -> Chain:
         chain = Chain(**chain_data)
@@ -25,15 +24,5 @@ class ChainService:
         
         for step in chain.steps:
             print(f"Executing step {step.step_id}")
-            self.execute_step(step)
-
-    async def execute_step(self, step: Step):
-        # Resolve dependencies for the step
-        dependencies = await self.dependency_resolver.resolve(step)
-
-        if step.step_type == "search":
-            # Execute the search with the resolved dependencies
-            return SearchExecutor(run_id=self.run_id, save_dir=self.save_dir).execute(step, dependencies)
-        elif step.step_type == "llm-query":
-            # Execution logic for LLM query would go here
-            pass
+            # Here we use the StepExecutor to execute the step
+            return self.step_executor.execute_step(step)
