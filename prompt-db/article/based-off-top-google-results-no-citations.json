@@ -1,43 +1,57 @@
 {
-    "chain_id": "webpage_creation_chain_001",
-    "chain_title": "Webpage Content Creation",
-    "chain_description": "Chain for creating structured content for a webpage.",
+    "chain_id": "based-off-top-google-results-no-citations",
+    "chain_title": "Write Article Based Off Top Google Results (No Citations)",
+    "chain_description": "Chain for writing an article that is similar but different to top google results for the chosen topic.",
     "version": "1.0.0",
-    "prompts": [
+    "steps": [
       {
-        "prompt_id": "content_outline",
-        "prompt_text": "Generate an outline for a webpage about {{ topic }}.",
+        "step_id": "search-for-topic",
+        "description": "Uses Google Search API to perform a search on a topic and return the top results in JSON form.",
+        "step_type": "search",
         "response_type": "json",
-        "dependencies": [],
-        "parameters": {
-          "topic": "Sustainable Gardening"
-        }
+        "dependencies": [
+          {
+            "name": "topic",
+            "type": "str",
+            "class": "user_entry"
+          }
+      ],
+        "outputs": [
+          {
+            "name": "search_results",
+            "type": "json",
+            "class": "output"
+          }
+        ],
+        "actions": null
       },
       {
-        "prompt_id": "select_outline",
-        "prompt_text": "Please select the most appropriate outline for the webpage.",
-        "response_type": "text",
-        "user_interaction": {
-          "required": true,
-          "interaction_type": "choice",
-          "options": ["Outline 1", "Outline 2", "Outline 3"]
-        }
-      },
-      {
-        "prompt_id": "detail_section",
-        "prompt_text": "Elaborate on the section titled '{{ section_title }}' from the chosen outline.",
-        "response_type": "text",
-        "dependencies": ["select_outline"],
-        "parameters": {
-          "section_title": "Introduction to Sustainable Practices"
-        }
-      },
-      {
-        "prompt_id": "external_data_inclusion",
-        "prompt_text": "Include statistics from the Google Search API to support the claims in the 'Benefits' section.",
+        "step_id": "find-themes",
+        "description": "Analyzes the search results and finds the most common themes, which are then presented to the user to refine the article topic.",
+        "step_type": "llm-query",
+        "prompt_text": "",
         "response_type": "json",
-        "dependencies": ["detail_section"],
-        "external_service": "google_search"
+        "dependencies": [
+          {
+            "name": "search_results",
+            "type": "json",
+            "class": "input"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "themes",
+            "type": "json",
+            "class": "output"
+          }
+        ],
+        "actions": [
+          {
+            "name": "select-preferred-theme",
+            "type": "select",
+            "data": "themes"
+          }
+        ]
       }
     ]
   }
