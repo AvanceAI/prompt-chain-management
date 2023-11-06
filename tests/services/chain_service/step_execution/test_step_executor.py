@@ -27,7 +27,8 @@ async def test_execute_search_step():
           {
             "name": "topic",
             "type": "str",
-            "class": "user_entry"
+            "class": "user_entry",
+            "message": "What topic would you like to write about?"
           }
       ],
         "outputs": [
