@@ -8,7 +8,6 @@ def mock_repository(tmp_path):
     repository_file.write_text('{}')  # Initialize the file with an empty JSON object
     return JsonRepository(filename=str(repository_file))
 
-@pytest.mark.skip(reason="Depends on Google Search API")
 def test_create_chain(mock_repository):
     service = ChainService(run_id="test_run", repository=mock_repository)
     chain_data = {

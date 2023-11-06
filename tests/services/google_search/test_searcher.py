@@ -6,7 +6,6 @@ from src.services.google_search.searcher import Searcher
 def searcher():
     return Searcher(save_dir="tests/services/google_search", run_id="test_run")
 
-@pytest.mark.skip(reason="Depends on Google Search API")
 def test_run(searcher):
     step_id = "test-step-1"
     query = "DS-160 Form"
