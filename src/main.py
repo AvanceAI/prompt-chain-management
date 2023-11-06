@@ -1,15 +1,15 @@
 # src/main.py
-from fastapi import FastAPI
+from src.utils.utils import read_json
+from fastapi import FastAPI, WebSocket
 import asyncio
 from src.core.security import setup_cors
 from src.websocket.server import start_websocket_server
 
 app = FastAPI()
 
-# Register FastAPI event handlers for startup and shutdown
 @app.on_event("startup")
 async def on_startup():
-    # Start the WebSocket server in the background
+    print('INFO:    Starting websocket server')
     asyncio.create_task(start_websocket_server())
 
 ##############################################

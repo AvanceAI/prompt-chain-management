@@ -1,8 +1,8 @@
 from tinydb import TinyDB, Query
 
 class JsonRepository:
-    def __init__(self, filename: str):
-        self.db = TinyDB(filename)
+    def __init__(self, filepath: str):
+        self.db = TinyDB(filepath)
 
     def save_chain(self, chain_data: dict) -> None:
         # Insert a new document into the table

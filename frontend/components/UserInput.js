@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ChainStarter from './ChainStarter';
 
 function UserInput({ websocket }) {
   const [message, setMessage] = useState('');
@@ -40,6 +41,9 @@ function UserInput({ websocket }) {
 
   return (
     <div>
+      <ChainStarter websocket={websocket} />
+      <br />
+      <br />
       <p>{message}</p>
       <input
         type="text"
