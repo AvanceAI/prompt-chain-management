@@ -25,8 +25,6 @@ class ConnectionManager:
     async def send_personal_message(self, message: str, websocket: WebSocket):
         """Direct Message and wait for the user's reply."""
         await websocket.send_text(json.dumps({"message": message}))
-        user_input = await self.wait_for_user_input(websocket)
-        return user_input
 
     async def wait_for_user_input(self, websocket: WebSocket):
         """Wait for user input from the frontend."""
@@ -40,9 +38,9 @@ class ConnectionManager:
         """Start chain execution event."""
         repository = JsonRepository(filepath=filepath)
         send_message_func = functools.partial(self.send_personal_message, websocket=websocket)
-        chain_service = ChainService(run_id="run_1", repository=repository, send_callback=send_message_func)
+        self.chain_service = ChainService(run_id="run_1", repository=repository, send_callback=send_message_func)
         # Invoke the ChainService to start the execution
-        asyncio.create_task(chain_service.execute_chain(filepath))
+        asyncio.create_task(self.chain_service.execute_chain(filepath))
         # Send a JSON-encoded message
         await websocket.send_text(json.dumps({"status": "Chain execution started"}))
 
@@ -57,9 +55,15 @@ class ConnectionManager:
 
     async def process_user_input(self, user_input: str, websocket: WebSocket):
         """Process the user input."""
-        # Assuming you want to place the user input into the response queue for the websocket
-        if websocket in self.response_queues:
-            await self.response_queues[websocket].put(user_input)
+        # Here user_input is the actual content of the user's response along with the correlation_id
+        if 'correlation_id' in user_input:
+            logger.info(f"Attempting to correlate user input for id: {user_input['correlation_id']}")
+            # Extract the correlation_id and resolve the future in the DependencyResolver
+            correlation_id = user_input['correlation_id']
+            # Assume DependencyResolver is accessible through an instance variable
+            self.chain_service.step_executor.dependency_resolver.resolve_user_input(correlation_id, user_input['user_entry'])
+        else:
+            logger.error("Received user input without correlation_id")
     
     def disconnect(self, websocket: WebSocket):
         """disconnect event"""
@@ -77,16 +81,29 @@ class ConnectionManager:
                 data = await websocket.receive_text()
                 data_json = json.loads(data)
                 logger.info(f"Received message: {data_json}")
-                if data_json.get('type') == 'startChain':
-                    # Assuming that the 'startChain' message contains the filepath
+                message_type = data_json.get('type')
+                
+                if message_type == 'startChain':
+                    # Start chain logic remains the same
                     filepath = data_json.get('filePath')
                     await self.start_chain(filepath, websocket)
-                elif data_json.get('type') == 'userInput':
-                    # Assuming that the 'userInput' is the text sent by the user.
-                    user_input = data_json.get('userInput')
-                    await self.process_user_input(user_input, websocket)
+                    
+                elif message_type == 'user_entry':
+                    # Process user input with the correlation ID
+                    await self.process_user_input(data_json, websocket)
                 else:
-                    pass
-                # Add more conditions for other message types as needed
+                    logger.warn(f"Unrecognized message type received: {message_type}")
+                    # Handle other message types or errors
+                    
         except WebSocketDisconnect:
             self.disconnect(websocket)
+
+
+    # Hypothetical method inside ConnectionManager class
+    async def receive_message(self, message):
+        data = json.loads(message)  # Assuming messages are in JSON format
+        if data.get("type") == "user_entry_response":
+            correlation_id = data["correlation_id"]
+            user_input = data["user_entry"]
+            # Notify the DependencyResolver about the user input
+            self.dependency_resolver.resolve_user_input(correlation_id, user_input)

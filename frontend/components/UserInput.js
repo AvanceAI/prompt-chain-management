@@ -22,7 +22,7 @@ function UserInput({ websocket }) {
 
   const sendInput = () => {
     if (websocket.readyState === WebSocket.OPEN) {
-      websocket.send(JSON.stringify({ userInput }));
+      websocket.send(JSON.stringify({ "type": "user_entry", "user_entry": userInput, "correlation_id": message.correlation_id }));
       console.log('Input sent');
       setUserInput(''); // Clear input field after sending
     }
@@ -50,7 +50,7 @@ function UserInput({ websocket }) {
       <ChainStarter websocket={websocket} />
       <br />
       <br />
-      <p>{message}</p>
+      <p>{message.message}</p>
       <input
         type="text"
         value={userInput}
