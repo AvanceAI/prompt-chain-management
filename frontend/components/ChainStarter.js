@@ -5,10 +5,11 @@ function ChainStarter({ websocket }) {
 
   const startChainExecution = () => {
     if (websocket.readyState === WebSocket.OPEN) {
-      websocket.send(JSON.stringify({ command: 'startChain', filePath }));
+      // Add a "type" field to the message
+      websocket.send(JSON.stringify({ type: 'startChain', filePath }));
     }
   };
-
+  
 
   const inputStyle = {
     width: '400px', // Making the input box wider

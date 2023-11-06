@@ -22,6 +22,19 @@ function UserInput({ websocket }) {
     }
   };
 
+  websocket.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.status) {
+        // Handle the status message from the server
+        console.log(data.status);
+      }
+      // ...handle other types of messages
+    } catch (e) {
+      console.error("Error parsing JSON:", e);
+    }
+  };
+
   const inputStyle = {
     width: '600px', // Making the input box wider
     height: '300px',

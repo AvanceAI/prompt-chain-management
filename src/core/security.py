@@ -5,7 +5,6 @@ from .config import settings
 
 def setup_cors(app: FastAPI) -> None:
     allowed_origins = settings.CORS_ORIGINS.split(",")
-
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
