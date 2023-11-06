@@ -202,6 +202,13 @@ async def test_execute_llm_query_step():
         ]
       }
     
+    # # Test GPT-4
+    # step = Step(**step_dict)
+    # themes = await step_executor.execute_step(step)
+    # assert isinstance(themes, dict)
+    
+    # Test GPT-3.5-Turbo-Instruct
+    step_dict["query_params"]["model"] = "gpt-3.5-turbo-instruct"
     step = Step(**step_dict)
     themes = await step_executor.execute_step(step)
     assert isinstance(themes, dict)

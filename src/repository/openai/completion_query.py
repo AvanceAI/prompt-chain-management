@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
+import ast
 import openai
 
 openai.api_key = os.environ['OPENAI_API_KEY']
@@ -14,7 +15,7 @@ class CompletionQuery:
         self.top_p = top_p
         self.frequency_penalty = frequency_penalty
 
-    def run(self, prompt, print=False):
+    def run(self, prompt, print=False, eval_literal=False):
         if print:
             print('////////////')
             print(f"message to be sent: {prompt}")
@@ -37,4 +38,7 @@ class CompletionQuery:
             print(f"response content: {result}")
             print('************')
             print('************')
+        
+        if eval_literal:
+            result = ast.literal_eval(result)
         return result
