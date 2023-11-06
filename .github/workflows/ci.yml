@@ -15,12 +15,12 @@ jobs:
       run: docker build . --file Dockerfile --tag prompt-chain-management:latest
     - name: Run the Docker image
       run: |
-        docker run --name prompt-chain-management -d -p 8000:80 prompt-chain-management:latest
+        docker run --name prompt-chain-management -d -p 8000:80 \
+        -e CSE_ID=${{ secrets.CSE_ID }} \
+        -e CSE_API_KEY=${{ secrets.CSE_API_KEY }} \
+        -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
+        prompt-chain-management:latest
         # Wait for a few seconds to ensure that the server is up
-        sleep 5
+        sleep 3
     - name: Execute tests with pytest
-      env:
-        CSE_ID: ${{ secrets.CSE_ID }}
-        CSE_API_KEY: ${{ secrets.CSE_API_KEY }}
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: docker exec prompt-chain-management pytest
