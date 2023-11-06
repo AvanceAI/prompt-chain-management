@@ -9,29 +9,22 @@ function UserInput({ websocket }) {
     // Listen for messages on the websocket connection
     websocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data && data.message) {
+      if (data.message) {
         setMessage(data.message);
+        // Additional UI logic to prompt for user input could go here.
+      } else if (data.status) {
+        console.log(data.status);
+        // Handle the status message from the server
       }
+      // ...handle other types of messages
     };
   }, [websocket]);
 
   const sendInput = () => {
     if (websocket.readyState === WebSocket.OPEN) {
       websocket.send(JSON.stringify({ userInput }));
+      console.log('Input sent');
       setUserInput(''); // Clear input field after sending
-    }
-  };
-
-  websocket.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      if (data.status) {
-        // Handle the status message from the server
-        console.log(data.status);
-      }
-      // ...handle other types of messages
-    } catch (e) {
-      console.error("Error parsing JSON:", e);
     }
   };
 

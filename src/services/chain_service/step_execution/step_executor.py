@@ -28,5 +28,5 @@ class StepExecutor:
             if isinstance(result, tuple):
                 raise NotImplementedError("Tuple results not supported yet. Assuming outputs array is only length 1")
             self.variables[step.outputs[0].name] = result
-        
-        return result
+
+        print(f"Step {step.step_id} executed successfully")

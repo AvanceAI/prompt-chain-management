@@ -23,6 +23,5 @@ class ChainService:
         chain = Chain(**chain_data)
         
         for step in chain.steps:
-            print(f"Executing step {step.step_id}")
             # Here we use the StepExecutor to execute the step
             return self.step_executor.execute_step(step)

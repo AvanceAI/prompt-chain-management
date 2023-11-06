@@ -21,6 +21,7 @@ class Searcher:
         self.total_results = total_results
         
     def run(self, query, step_id):
+        print(f"Performing Google Search for query: {query}")
         search_results = self.google_search(query=query)
         save_path = os.path.join(self.save_dir, f"{step_id}.json")
         print(f"Saving results to {save_path}")

@@ -1,6 +1,9 @@
 from src.models.chain import Step
 from src.repository.openai.query import Query
 from src.repository.openai.completion_query import CompletionQuery
+from src.core.logger import get_logger
+
+logger = get_logger(__name__)
 
 class LlmQueryExecutor:
     def __init__(self, run_id, save_dir="outputs"):
@@ -8,6 +11,7 @@ class LlmQueryExecutor:
         self.save_dir = save_dir
     
     def execute(self, step: Step, dependencies: dict):
+        logger.info("Executing LLM query step")
         system_message = step.prompt_text.format(**dependencies)
 
         if step.response_type == "json":
@@ -16,10 +20,12 @@ class LlmQueryExecutor:
             eval_literal = False
 
         if step.query_params.model == "gpt-3.5-turbo-instruct":
-            return self._run_completions_api_query(step, system_message, eval_literal)
+            result = self._run_completions_api_query(step, system_message, eval_literal)
         else:
-            return self._run_chat_api_query(step, system_message, eval_literal)
-                
+            result = self._run_chat_api_query(step, system_message, eval_literal)
+        logger.info("LLM query step executed successfully")
+        return result
+    
     def _run_completions_api_query(self, step, system_message, eval_literal):
         query = CompletionQuery(
             model=step.query_params.model, 
