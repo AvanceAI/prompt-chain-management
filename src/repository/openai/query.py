@@ -50,28 +50,31 @@ class Query:
         )
         return response
     
+    def run_with_data_or_prompt(self, prompt=None,  data=None):
+        if isinstance(data, dict):
+            data = json.dumps(data, indent=4)
+        elif isinstance(data, list):
+            data = str(data)
+        else:
+            pass
+        
+        if data is None:
+            message = prompt
+        elif prompt is not None and data is not None:
+            message = prompt + '\n\n\n\n' + data
+        else:
+            message = data
+        res = self.send_message(message=message)
+        return res
+    
     def run(self, prompt=None, data=None, eval_literal=True):
         if prompt is None and data is None:
             chatbot_response = self._send(messages=self.messages)["choices"][0]["message"].to_dict()
             self.messages.append(chatbot_response)
-            return chatbot_response["content"]
+            res = chatbot_response["content"]
         else:
-            if isinstance(data, dict):
-                data = json.dumps(data, indent=4)
-            elif isinstance(data, list):
-                data = str(data)
-            else:
-                pass
-            
-            if data is None:
-                message = prompt
-            elif prompt is not None and data is not None:
-                message = prompt + '\n\n\n\n' + data
-            else:
-                message = data
+            res = self.run_with_data_or_prompt(prompt=prompt, data=data)
         
-        res = self.send_message(message=message)
         if eval_literal:
             res = ast.literal_eval(res)
         return res
-    

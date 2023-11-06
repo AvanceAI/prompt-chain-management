@@ -15,5 +15,7 @@ class DependencyResolver:
             dep_key = dependency.name
             if dependency.class_ == 'user_entry':
                 dependencies[dep_key] = self.user_interface(dep_key)
+            elif dependency.class_ == 'output':
+                pass # Already contained in variables dict in StepExecutor
         print("DEP IN RESOLVER", dependencies)
         return dependencies

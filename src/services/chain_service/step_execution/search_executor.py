@@ -5,6 +5,6 @@ class SearchExecutor:
     def __init__(self, run_id, save_dir="outputs"):
         self.searcher = Searcher(run_id=run_id, save_dir=save_dir)
 
-    def execute(self, step: Step, dependencies: dict):
-        search_results = self.searcher.run(query=dependencies["topic"], step_id=step.step_id)
+    def execute(self, step: Step, variables: dict):
+        search_results = self.searcher.run(query=variables["topic"], step_id=step.step_id)
         return search_results

@@ -22,11 +22,12 @@ trap cleanup EXIT
 
 # Build the Docker image and start the container with docker-compose
 echo "Building and starting services with Docker Compose..."
-docker-compose up -d --build $SERVICE_NAME || { echo "Docker Compose up failed"; exit 1; }
+# docker-compose up -d --build $SERVICE_NAME || { echo "Docker Compose up failed"; exit 1; }
+docker-compose up -d $SERVICE_NAME || { echo "Docker Compose up failed"; exit 1; }
 
 # Allow some time for the server to start
 echo "Waiting for the server to start..."
-sleep 5  # Adjust the sleep time if necessary
+sleep 1  # Adjust the sleep time if necessary
 
 # Execute the tests with pytest
 echo "Running tests in directory: $TEST_DIR"

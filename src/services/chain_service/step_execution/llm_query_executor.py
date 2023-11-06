@@ -23,5 +23,4 @@ class LlmQueryExecutor:
             eval_literal = True
         else:
             eval_literal = False
-            
         return query.run(eval_literal=eval_literal)
