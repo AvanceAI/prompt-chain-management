@@ -15,7 +15,7 @@ export default function TestPage({websocket}) {
     <div style={{ display: 'flex' }}>
       <SideBar onSendMockMessage={handleMockMessage} />
       <div className='align-items-left' style={{ marginLeft: '150px' }}>
-        <main className="flex min-h-screen flex-col items-center justify-between p-24">
+        <main className="flex flex-col items-center justify-between p-10">
           <UserInput websocket={websocket} mockMessage={mockMessage} />
         </main>
       </div>

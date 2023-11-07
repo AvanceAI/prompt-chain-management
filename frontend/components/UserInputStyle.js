@@ -1,10 +1,12 @@
 
 const inputStyle = {
-    width: '600px', // Making the input box wider
-    height: '300px',
+    width: '800px', // Making the input box wider
+    maxWidth: '800px',
+    height: '100px',
     fontSize: '1.5em',
     border: '1px solid black',
-    margin: '20px 0' // Add some vertical space
+    overflowY: 'auto', 
+    margin: '10px' // Add some vertical space
   };
 
 const buttonStyle = {
