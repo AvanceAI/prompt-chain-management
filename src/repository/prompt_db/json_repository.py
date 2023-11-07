@@ -9,12 +9,14 @@ class JsonRepository:
         self.db = {}
         self.db[filepath] = read_json(filepath)
         
-    def get_chain(self, chain_id: str) -> dict:
-        return self.db[chain_id]
+    def get_chain(self, filepath: str) -> dict:
+        if filepath not in self.db:
+            raise KeyError(f"Chain not found (filepath): {filepath}")
+        return self.db[filepath]
 
-    def update_chain(self, chain_id: str, updated_data: dict) -> None:
-        # Update document matched by chain_id
-        self.db[chain_id] = updated_data
+    def save_chain(self, filepath, chain_data: dict) -> None:
+        # Insert a new document
+        self.db[filepath] = chain_data
 
     def list_chains(self) -> list:
         # Return all documents in the table

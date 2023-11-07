@@ -14,13 +14,10 @@ class ChainService:
 
     def create_chain(self, chain_data: dict) -> Chain:
         chain = Chain(**chain_data)
-        # Save to the database
-        self.repository.save_chain(chain.dict())
         return chain 
 
     async def execute_chain(self, chain_id: str) -> None:
         chain_data = self.repository.get_chain(chain_id)
-        
         if not chain_data or chain_data == {}:
             raise ValueError("Chain not found")
         chain = Chain(**chain_data)

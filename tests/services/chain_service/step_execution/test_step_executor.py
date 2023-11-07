@@ -11,11 +11,11 @@ def mock_repository(tmp_path):
 
 @pytest.mark.asyncio
 async def test_execute_search_step():
-    def mock_user_interface(dep_key): 
+    def mock_send_callback(dep_key): 
         data = {"topic": "DS-260 Form"}
         return data[dep_key]
     
-    mock_resolver = DependencyResolver(user_interface=mock_user_interface)
+    mock_resolver = DependencyResolver(send_callback=mock_send_callback)
     step_executor = StepExecutor(run_id="test_run", save_dir="outputs", dependency_resolver=mock_resolver)
 
     step_dict = {
@@ -48,7 +48,7 @@ async def test_execute_search_step():
 
 @pytest.mark.asyncio
 async def test_execute_llm_query_step():
-    def mock_user_interface(dep_key): # No user input variables for this step
+    def mock_send_callback(dep_key): # No user input variables for this step
         data = {}
         return data[dep_key]
    
@@ -158,7 +158,7 @@ async def test_execute_llm_query_step():
     }
           }
     
-    mock_resolver = DependencyResolver(user_interface=mock_user_interface)
+    mock_resolver = DependencyResolver(send_callback=mock_send_callback)
     step_executor = StepExecutor(run_id="test_run", save_dir="outputs", dependency_resolver=mock_resolver, variables=mock_variables)
 
     step_dict = {
