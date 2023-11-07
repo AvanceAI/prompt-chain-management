@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ChainStarter from './ChainStarter';
-import { inputStyle, buttonStyle } from './UserInputStyle';
+import { MessageBox, Input, Button } from 'react-chat-elements';
+import 'react-chat-elements/dist/main.css';
 
 const UserInput = ({ websocket, mockMessage }) => {
   const [messages, setMessages] = useState([]);
@@ -10,7 +11,7 @@ const UserInput = ({ websocket, mockMessage }) => {
 
   useEffect(() => {
     const handleMessageEvent = (data) => {
-      setMessages((prevMessages) => [...prevMessages, { type: 'incoming', text: data.message.message, variable: data.message.variable }]);
+      setMessages((prevMessages) => [...prevMessages, { type: 'incoming', text: data.message.message, variable: data.message.variable, correlation_id: data.message.correlation_id }]);
     };
 
     websocket.onmessage = (event) => {
@@ -46,38 +47,61 @@ const UserInput = ({ websocket, mockMessage }) => {
     console.log(key);
   };
 
+  const renderMessage = (msg, index) => {
+    if (msg.variable) {
+      return (
+        <div key={index}>
+          <MessageBox
+            position={msg.type === 'incoming' ? 'left' : 'right'}
+            type={'text'}
+            text={msg.text}
+          />
+          <div style={{ display: 'flex', flexDirection: 'row' }}>
+            {Object.keys(msg.variable).map((key) => (
+              <Button
+                key={key}
+                text={key}
+                onClick={() => handleButtonClick(key)}
+              />
+            ))}
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <MessageBox
+          key={index}
+          position={msg.type === 'incoming' ? 'left' : 'right'}
+          type={'text'}
+          text={msg.text}
+        />
+      );
+    }
+  };
+
   return (
     <div>
       <ChainStarter websocket={websocket} />
+      {/* Display messages */}
       <div style={{ maxHeight: '500px', width: '800px', overflowY: 'auto', border: '1px solid black', margin: '10px' }}>
-        {messages.map((msg, index) => (
-          <div key={index}>
-            <p style={msg.type === 'incoming' ? { color: 'blue' } : { color: 'green' }}>{msg.text}</p>
-            {msg.variable && (
-              <div style={{ display: 'flex', flexDirection: 'row' }}> {/* This line is new */}
-                {Object.keys(msg.variable).map((key) => (
-                  <button key={key} onClick={() => handleButtonClick(key)} style={{ ...buttonStyle, margin: '0 4px' }}> {/* Adjusted style */}
-                    {key}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-        <div ref={endOfMessagesRef} />
+        {messages.map(renderMessage)}
       </div>
 
-      <input
-        type="text"
+      {/* Input field */}
+      <Input
+        placeholder="Enter your input here"
         value={userInput}
         onChange={(e) => setUserInput(e.target.value)}
-        placeholder="Enter your input here"
-        style={inputStyle}
         onKeyPress={(e) => e.key === 'Enter' && sendInput()}
+        rightButtons={
+          <Button
+            color='white'
+            backgroundColor='black'
+            text='Send'
+            onClick={sendInput}
+          />
+        }
       />
-      <button onClick={sendInput} style={buttonStyle}>
-        Send
-      </button>
     </div>
   );
 };
