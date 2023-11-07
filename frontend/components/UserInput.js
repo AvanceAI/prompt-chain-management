@@ -1,48 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ChainStarter from './ChainStarter';
+import { inputStyle, buttonStyle } from './UserInputStyle';
 
-function UserInput({ websocket }) {
+const UserInput = ({ websocket, mockMessage }) => {
   const [message, setMessage] = useState('');
   const [userInput, setUserInput] = useState('');
 
   useEffect(() => {
-    // Listen for messages on the websocket connection
     websocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.message) {
         setMessage(data.message);
-        // Additional UI logic to prompt for user input could go here.
       } else if (data.status) {
         console.log(data.status);
-        // Handle the status message from the server
       }
-      // ...handle other types of messages
     };
   }, [websocket]);
+
+  useEffect(() => {
+    if (mockMessage) {
+      setMessage(mockMessage);
+    }
+  }, [mockMessage]);
 
   const sendInput = () => {
     if (websocket.readyState === WebSocket.OPEN) {
       websocket.send(JSON.stringify({ "type": "user_entry", "user_entry": userInput, "correlation_id": message.correlation_id }));
       console.log('Input sent');
-      setUserInput(''); // Clear input field after sending
+      setUserInput('');
     }
-  };
-
-  const inputStyle = {
-    width: '600px', // Making the input box wider
-    height: '300px',
-    fontSize: '1.5em',
-    border: '1px solid black',
-    margin: '20px 0' // Add some vertical space
-  };
-
-  const buttonStyle = {
-    width: '50%', // Making the button wider
-    padding: '15px 0', // Making the button taller
-    fontSize: '1.5em',
-    margin: '0 auto', // Center button horizontally
-    display: 'block', // Display button below the text box
-    background: 'red'
   };
 
   return (
@@ -64,6 +50,7 @@ function UserInput({ websocket }) {
       </button>
     </div>
   );
-}
+};
+
 
 export default UserInput;
