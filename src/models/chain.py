@@ -6,6 +6,7 @@ class Dependency(BaseModel):
     type: str = Field(..., description="The type of the dependency.")
     class_: str = Field(..., alias='class', description="The class of the dependency.")
     message: Union[str, None] = Field(None, description="The message to display to the user.")
+    variable: Union[str, None] = Field(None, description="The variable to be included with the message to display to the user.")
 
 class Output(BaseModel):
     name: str = Field(..., description="The name of the output.")

@@ -71,7 +71,8 @@
             "name": "select-theme",
             "type": "int",
             "class": "user_entry",
-            "message": "Which theme would you like to use for your article?"
+            "message": "Which theme would you like to use for your article?",
+            "variable": "themes"
           }
       ],
         "outputs": [

@@ -51,6 +51,7 @@ function UserInput({ websocket }) {
       <br />
       <br />
       <p>{message.message}</p>
+      <p>{JSON.stringify(message.variable)}</p>
       <input
         type="text"
         value={userInput}

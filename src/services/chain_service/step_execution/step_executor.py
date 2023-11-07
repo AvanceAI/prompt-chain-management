@@ -16,7 +16,7 @@ class StepExecutor:
     async def execute_step(self, step: Step):
         logger.info(f"Executing step {step.step_id}")
         # Resolve dependencies for the step
-        dependencies = await self.dependency_resolver.resolve(step)
+        dependencies = await self.dependency_resolver.resolve(step, self.variables)
         
         self.variables.update(dependencies)
         if step.step_type == "search":
