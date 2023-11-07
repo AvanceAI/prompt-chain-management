@@ -30,3 +30,4 @@ class StepExecutor:
             self.variables[step.outputs[0].name] = result
 
         logger.info(f"Step {step.step_id} executed successfully")
+        return result

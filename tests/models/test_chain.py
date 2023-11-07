@@ -25,7 +25,7 @@ def test_create_chain(chain_data):
     chain = Chain(**chain_data)
     assert chain.chain_id == "based-off-top-google-results-no-citations"
     assert chain.chain_title == "Write Article Based Off Top Google Results (No Citations)"
-    assert len(chain.steps) == 2  # Based on the JSON provided
+    assert len(chain.steps) == 3  # Based on the JSON provided
 
 def test_chain_validation_error(chain_data):
     invalid_data = chain_data
