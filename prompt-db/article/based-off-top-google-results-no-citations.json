@@ -59,13 +59,29 @@
             "class": "output"
           }
         ],
-        "actions": [
+        "actions": null
+      },
+      {
+        "step_id": "select-theme-and-create-outlines",
+        "description": "Prompts user to select the preferred theme for the article and then creates outlines based on articles that matched that theme.",
+        "step_type": "option-select-request-parallel-llm-query",
+        "response_type": "json",
+        "dependencies": [
           {
-            "name": "select-preferred-theme",
-            "type": "select",
-            "data": "themes"
+            "name": "select-theme",
+            "type": "int",
+            "class": "user_entry",
+            "message": "Which theme would you like to use for your article?"
           }
-        ]
+      ],
+        "outputs": [
+          {
+            "name": "outlines",
+            "type": "json",
+            "class": "output"
+          }
+        ],
+        "actions": null
       }
     ]
   }
