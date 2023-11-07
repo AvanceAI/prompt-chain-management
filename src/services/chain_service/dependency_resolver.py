@@ -35,11 +35,11 @@ class DependencyResolver:
 
     async def get_user_response(self, correlation_id):
         # Wait for the response to arrive for the given correlation ID
-        return await self.pending_responses[correlation_id]
+        response = await self.pending_responses[correlation_id]
+        logger.info(f"Received user response for correlation_id: {correlation_id}")
+        return response
 
     def resolve_user_input(self, correlation_id, value):
-        logger.info("Iterating through Pending Reponses to resolve user input")
-        logger.info(f"Pending responses: {self.pending_responses}")
         if correlation_id in self.pending_responses:
             self.pending_responses[correlation_id].set_result(value)
             logger.info(f"Resolved user input for correlation_id: {correlation_id}")
