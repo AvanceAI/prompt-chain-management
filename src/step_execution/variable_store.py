@@ -1,7 +1,7 @@
 class VariableStore:
-    def __init__(self, result_saver):
-        self._variables = {}
+    def __init__(self, result_saver=None, variables=None):
         self.result_saver = result_saver
+        self._variables = variables or {}
 
     def update_variables(self, step_id, new_variables):
         self._variables.update(new_variables)
