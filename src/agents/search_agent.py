@@ -1,5 +1,5 @@
 import os
-from src.step_execution.tools.google_search.searcher import Searcher
+from src.tools.google_search.searcher import Searcher
 from src.models.chain import Step
 from src.core.logger import get_logger
 from src.utils.results_saver import save_results

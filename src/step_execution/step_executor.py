@@ -1,7 +1,7 @@
 from src.models.chain import Step
 from src.services.chain_service.dependency_resolver import DependencyResolver
-from src.step_execution.agents.search_agent import SearchAgent
-from src.step_execution.agents.llm_query_agent import LlmQueryAgent
+from src.agents.search_agent import SearchAgent
+from src.agents.llm_query_agent import LlmQueryAgent
 from src.core.logger import get_logger
 
 logger = get_logger(__name__)
