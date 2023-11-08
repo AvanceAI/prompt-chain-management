@@ -27,14 +27,10 @@ class DependencyResolver:
     async def request_user_input(self, correlation_id, dependency, variables):
         # Send the request for user input with a unique correlation ID
         logger.info(f"Sending request for user input with correlation_id: {correlation_id}")
-        logger.warn(f"Dependency: {dependency}")
-        logger.warn(f"Variables Keys: {variables.keys()}")
-        logger.warn(f"Dependency.variable: {dependency.variable}")
         if dependency.variable in variables.keys():
             variable = variables[dependency.variable]
         else:
             variable = None
-        logger.warn(f"Variable: {variable}")
         await self.send_callback({"type": "user_entry", "correlation_id": correlation_id, "message": dependency.message, "variable": variable})
         # Create a future to be fulfilled when the response arrives
         logger.info(f"Creating future for correlation_id: {correlation_id}")

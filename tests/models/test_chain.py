@@ -77,7 +77,7 @@ def test_create_step_with_query_params():
     data = {
         "step_id": "find-themes",
         "description": "Analyzes the search results and finds the most common themes, which are then presented to the user to refine the article topic.",
-        "step_type": "llm-query",
+        "agent": "llm-query",
         "query_params": {
             "model": "gpt-4",
             "temperature": 0,

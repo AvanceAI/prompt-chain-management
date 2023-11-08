@@ -10,33 +10,41 @@ def dependency_resolver():
     send_callback = AsyncMock()
     return DependencyResolver(send_callback=send_callback)
 
-# Fixture to create a step with dependencies
+
 @pytest.fixture
-def step_with_dependencies():
+def dependency_fixture():
     data = {'name': 'input1',
-            'type':'json', 
-            'class':'user_entry', 
-            'message': 'Please enter input 1'
-            }
+        'type':'json', 
+        'class':'user_entry', 
+        'message': 'Please enter input 1'
+        }
+    return Dependency(**data)
+
+@pytest.fixture
+def step_with_dependencies(dependency_fixture):
+
     return Step(
         step_id='test_step',
         description='test step',
-        step_type='search',
+        agent='search',
         response_type='json',
         dependencies=[
-            Dependency(**data),
+            dependency_fixture,
         ]
     )
 
+@pytest.fixture
+def mock_variables():
+    return {}
 
 @pytest.mark.asyncio
-async def test_resolve_with_user_entry(dependency_resolver, step_with_dependencies):
+async def test_resolve_with_user_entry(dependency_resolver, step_with_dependencies, mock_variables):
     # Arrange
     correlation_id = f"{step_with_dependencies.step_id}-input1"
     user_input = "user's input data"
     
     # Act
-    resolve_task = asyncio.create_task(dependency_resolver.resolve(step_with_dependencies))
+    resolve_task = asyncio.create_task(dependency_resolver.resolve(step=step_with_dependencies, variables=mock_variables))
 
     # Wait a bit for request_user_input to execute
     await asyncio.sleep(0.01) 
@@ -52,17 +60,17 @@ async def test_resolve_with_user_entry(dependency_resolver, step_with_dependenci
     dependency_resolver.send_callback.assert_called_once_with({
         "type": "user_entry",
         "correlation_id": correlation_id,
-        "message": 'Please enter input 1'
+        "message": 'Please enter input 1',
+        "variable": None
     })
 
 @pytest.mark.asyncio
-async def test_request_user_input_creates_future(dependency_resolver):
+async def test_request_user_input_creates_future(dependency_resolver, dependency_fixture, mock_variables):
     # Arrange
     correlation_id = 'test_correlation_id'
-    message = 'Test message'
 
     # Act
-    await dependency_resolver.request_user_input(correlation_id, message)
+    await dependency_resolver.request_user_input(correlation_id, dependency=dependency_fixture, variables=mock_variables)
 
     # Assert
     assert correlation_id in dependency_resolver.pending_responses

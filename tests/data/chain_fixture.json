@@ -7,7 +7,7 @@
       {
         "step_id": "search-for-topic",
         "description": "Uses Google Search API to perform a search on a topic and return the top results in JSON form.",
-        "step_type": "search",
+        "agent": "search",
         "response_type": "json",
         "dependencies": [
           {
@@ -29,7 +29,7 @@
       {
         "step_id": "find-themes",
         "description": "Analyzes the search results and finds the most common themes, which are then presented to the user to refine the article topic.",
-        "step_type": "llm-query",
+        "agent": "llm-query",
         "query_params": {
           "model": "gpt-3.5-turbo-instruct",
           "temperature": 0,
@@ -64,7 +64,7 @@
       {
         "step_id": "select-theme-and-create-outlines",
         "description": "Prompts user to select the preferred theme for the article and then creates outlines based on articles that matched that theme.",
-        "step_type": "option-select-request-parallel-llm-query",
+        "agent": "option-select-request-parallel-llm-query",
         "response_type": "json",
         "dependencies": [
           {

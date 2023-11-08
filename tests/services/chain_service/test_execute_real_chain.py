@@ -22,7 +22,7 @@ def test_create_chain(mock_repository):
             {
                 "step_id": "test_step_1",
                 "description": "this is a test step",
-                "step_type": "search",
+                "agent": "search",
                 "prompt_text": "This is a test prompt.",
                 "response_type": "text"
             }

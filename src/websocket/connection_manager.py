@@ -99,7 +99,6 @@ class ConnectionManager:
             self.disconnect(websocket)
 
 
-    # Hypothetical method inside ConnectionManager class
     async def receive_message(self, message):
         data = json.loads(message)  # Assuming messages are in JSON format
         if data.get("type") == "user_entry_response":

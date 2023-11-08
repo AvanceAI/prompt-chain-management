@@ -19,10 +19,10 @@ class StepExecutor:
         dependencies = await self.dependency_resolver.resolve(step, self.variables)
         
         self.variables.update(dependencies)
-        if step.step_type == "search":
+        if step.agent == "search":
             # Execute the search with the resolved dependencies (now stored in self.variables)
             result = SearchExecutor(run_id=self.run_id, save_dir=self.save_dir).execute(step, self.variables)
-        elif step.step_type == "llm-query":
+        elif step.agent == "llm-query":
             result =  LlmQueryExecutor(run_id=self.run_id, save_dir=self.save_dir).execute(step, self.variables)
         if step.response_type == "json":
             if isinstance(result, tuple):

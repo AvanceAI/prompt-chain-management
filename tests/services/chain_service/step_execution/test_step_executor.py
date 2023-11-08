@@ -23,7 +23,7 @@ async def test_execute_search_step(dependency_resolver):
     step_dict = {
         "step_id": "search-for-topic",
         "description": "Uses Google Search API to perform a search on a topic and return the top results in JSON form.",
-        "step_type": "search",
+        "agent": "search",
         "response_type": "json",
         "dependencies": [
           {
@@ -67,7 +67,8 @@ async def test_execute_search_step(dependency_resolver):
     dependency_resolver.send_callback.assert_called_once_with({
         "type": "user_entry",
         "correlation_id": correlation_id,
-        "message": step_dict['dependencies'][0]['message']
+        "message": step_dict['dependencies'][0]['message'],
+        "variable": None
     })
 
 @pytest.mark.asyncio
@@ -188,7 +189,7 @@ async def test_execute_llm_query_step():
     step_dict = {
         "step_id": "find-themes",
         "description": "Analyzes the search results and finds the most common themes, which are then presented to the user to refine the article topic.",
-        "step_type": "llm-query",
+        "agent": "llm-query",
         "query_params": {
             "model": "gpt-4",
             "temperature": 0,
