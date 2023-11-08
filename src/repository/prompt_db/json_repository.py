@@ -1,28 +1,23 @@
 from tinydb import TinyDB, Query
+from src.core.logger import get_logger
+from src.utils.utils import read_json
+
+logger = get_logger(__name__)
 
 class JsonRepository:
-    def __init__(self, filename: str):
-        self.db = TinyDB(filename)
+    def __init__(self, filepath: str):
+        self.db = {}
+        self.db[filepath] = read_json(filepath)
+        
+    def get_chain(self, filepath: str) -> dict:
+        if filepath not in self.db:
+            raise KeyError(f"Chain not found (filepath): {filepath}")
+        return self.db[filepath]
 
-    def save_chain(self, chain_data: dict) -> None:
-        # Insert a new document into the table
-        self.db.insert(chain_data)
-
-    def get_chain(self, chain_id: str) -> dict:
-        # Search for a document by chain_id
-        PromptChain = Query()
-        return self.db.search(PromptChain.chain_id == chain_id)
-
-    def update_chain(self, chain_id: str, updated_data: dict) -> None:
-        # Update document matched by chain_id
-        PromptChain = Query()
-        self.db.update(updated_data, PromptChain.chain_id == chain_id)
-
-    def delete_chain(self, chain_id: str) -> None:
-        # Remove document by chain_id
-        PromptChain = Query()
-        self.db.remove(PromptChain.chain_id == chain_id)
+    def save_chain(self, filepath, chain_data: dict) -> None:
+        # Insert a new document
+        self.db[filepath] = chain_data
 
     def list_chains(self) -> list:
         # Return all documents in the table
-        return self.db.all()
+        return list(self.db.keys()) 

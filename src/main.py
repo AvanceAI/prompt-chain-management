@@ -1,16 +1,22 @@
 # src/main.py
-from fastapi import FastAPI
-import asyncio
+import json
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from src.websocket.connection_manager import ConnectionManager
 from src.core.security import setup_cors
-from src.websocket.server import start_websocket_server
 
 app = FastAPI()
 
-# Register FastAPI event handlers for startup and shutdown
-@app.on_event("startup")
-async def on_startup():
-    # Start the WebSocket server in the background
-    asyncio.create_task(start_websocket_server())
+manager = ConnectionManager()
+
+@app.websocket("/communicate")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        await manager.listen_websocket(websocket)  # assuming you implement this method as suggested
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        await manager.broadcast("A client just disconnected.")
+
 
 ##############################################
 ############## Test Endpoints ################

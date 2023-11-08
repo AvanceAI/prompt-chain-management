@@ -3,7 +3,6 @@ load_dotenv()
 
 import os
 import requests
-from ...utils.utils import save_json
 
 API_ENDPOINT = "https://www.googleapis.com/customsearch/v1"
 
@@ -12,19 +11,13 @@ CSE_API_KEY = os.environ["CSE_API_KEY"]
 
 
 class Searcher:
-    def __init__(self, run_id, save_dir="outputs", max_results_per_query=10, total_results=20):
-        self.run_id = run_id
-        self.save_dir = os.path.join(save_dir, run_id)
-        if not os.path.exists(self.save_dir):
-            os.makedirs(self.save_dir)
+    def __init__(self, max_results_per_query=10, total_results=20):
         self.max_results_per_query = max_results_per_query
         self.total_results = total_results
         
-    def run(self, query, step_id):
+    def run(self, query):
+        print(f"Performing Google Search for query: {query}")
         search_results = self.google_search(query=query)
-        save_path = os.path.join(self.save_dir, f"{step_id}.json")
-        print(f"Saving results to {save_path}")
-        save_json(filepath=save_path, data={"data": search_results})
         return search_results
 
     def google_search(self, query):

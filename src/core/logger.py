@@ -1,14 +1,17 @@
 # src/core/logger.py
 import logging
-import sys
 
-def setup_logger() -> None:
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-        ],
-    )
+def get_logger(logger_name, log_level=logging.INFO):
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(log_level)
+    logger.propagate = False  # Prevent log propagation to avoid double logging
 
-logger = logging.getLogger(__name__)
+    formatter = logging.Formatter("**[%(levelname)s]** %(name)s: %(message)s | %(asctime)s")
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+
+    if not logger.handlers:
+        logger.addHandler(console_handler)
+
+    return logger

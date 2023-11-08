@@ -1,5 +1,7 @@
 import pytest
-from src.services.chain_service.step_execution.step_executor import StepExecutor
+import asyncio
+from unittest.mock import AsyncMock
+from src.step_execution.step_executor import StepExecutor
 from src.models.chain import Step
 from src.repository.prompt_db.json_repository import JsonRepository
 from src.services.chain_service.dependency_resolver import DependencyResolver
@@ -9,19 +11,19 @@ def mock_repository(tmp_path):
     repository_file.write_text('{}')  # Initialize the file with an empty JSON object
     return JsonRepository(filename=str(repository_file))
 
+@pytest.fixture
+def dependency_resolver():
+    send_callback = AsyncMock()
+    return DependencyResolver(send_callback=send_callback)
+
 @pytest.mark.asyncio
-async def test_execute_search_step():
-    def mock_user_interface(dep_key): 
-        data = {"topic": "DS-260 Form"}
-        return data[dep_key]
-    
-    mock_resolver = DependencyResolver(user_interface=mock_user_interface)
-    step_executor = StepExecutor(run_id="test_run", save_dir="outputs", dependency_resolver=mock_resolver)
+async def test_execute_search_step(dependency_resolver):
+    step_executor = StepExecutor(run_id="test_run", save_dir="outputs", dependency_resolver=dependency_resolver)
 
     step_dict = {
         "step_id": "search-for-topic",
         "description": "Uses Google Search API to perform a search on a topic and return the top results in JSON form.",
-        "step_type": "search",
+        "agent": "search",
         "response_type": "json",
         "dependencies": [
           {
@@ -42,13 +44,36 @@ async def test_execute_search_step():
       }
     
     step = Step(**step_dict)
-    search_results = await step_executor.execute_step(step)
-    assert len(list(search_results.keys())) == 20
+    
+    # Arrange: Set the correlation id and simulate the user input
+    correlation_id = f"{step.step_id}-topic"
+    user_input = "Artificial Intelligence"
+    
+    # Act: Create a task to execute the step which would internally await user input
+    execute_task = asyncio.create_task(step_executor.execute_step(step))
 
+    # Wait a bit for request_user_input to be called
+    await asyncio.sleep(0.01) 
+
+    # Simulate user input by calling resolve_user_input directly
+    dependency_resolver.resolve_user_input(correlation_id, user_input)
+
+    # Now await the step execution to complete
+    search_results = await execute_task
+
+    # Assert: Ensure that the search_results contain 20 keys as expected
+    assert len(list(search_results.keys())) == 20
+    # Additional assert can be done to check if the mock send_callback was called with the right parameters
+    dependency_resolver.send_callback.assert_called_once_with({
+        "type": "user_entry",
+        "correlation_id": correlation_id,
+        "message": step_dict['dependencies'][0]['message'],
+        "variable": None
+    })
 
 @pytest.mark.asyncio
 async def test_execute_llm_query_step():
-    def mock_user_interface(dep_key): # No user input variables for this step
+    def mock_send_callback(dep_key): # No user input variables for this step
         data = {}
         return data[dep_key]
    
@@ -158,13 +183,13 @@ async def test_execute_llm_query_step():
     }
           }
     
-    mock_resolver = DependencyResolver(user_interface=mock_user_interface)
+    mock_resolver = DependencyResolver(send_callback=mock_send_callback)
     step_executor = StepExecutor(run_id="test_run", save_dir="outputs", dependency_resolver=mock_resolver, variables=mock_variables)
 
     step_dict = {
         "step_id": "find-themes",
         "description": "Analyzes the search results and finds the most common themes, which are then presented to the user to refine the article topic.",
-        "step_type": "llm-query",
+        "agent": "llm-query",
         "query_params": {
             "model": "gpt-4",
             "temperature": 0,
@@ -203,11 +228,7 @@ async def test_execute_llm_query_step():
         ]
       }
     
-    # # Test GPT-4
-    # step = Step(**step_dict)
-    # themes = await step_executor.execute_step(step)
-    # assert isinstance(themes, dict)
-    
+
     # Test GPT-3.5-Turbo-Instruct
     step_dict["query_params"]["model"] = "gpt-3.5-turbo-instruct"
     step = Step(**step_dict)

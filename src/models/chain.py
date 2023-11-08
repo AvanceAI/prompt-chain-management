@@ -5,6 +5,8 @@ class Dependency(BaseModel):
     name: str = Field(..., description="The name of the dependency.")
     type: str = Field(..., description="The type of the dependency.")
     class_: str = Field(..., alias='class', description="The class of the dependency.")
+    message: Union[str, None] = Field(None, description="The message to display to the user.")
+    variable: Union[str, None] = Field(None, description="The variable to be included with the message to display to the user.")
 
 class Output(BaseModel):
     name: str = Field(..., description="The name of the output.")
@@ -27,7 +29,7 @@ class QueryParams(BaseModel):
 class Step(BaseModel):
     step_id: str = Field(..., description="Unique identifier for the Step.")
     description: str = Field(..., description="The description of the Step.")
-    step_type: constr(regex='^(search|llm-query)$') = Field(..., description="The type of the Step, either 'search' or 'llm-query'.")
+    agent: constr(regex='^(search|llm-query|option-select-request-parallel-llm-query)$') = Field(..., description="The type of the Step, either 'search' or 'llm-query'.")
     query_params: Union[QueryParams, None] = Field(None, description="The query parameters if applicable.")
     prompt_text: Union[str, None] = Field(None, description="The prompt text if applicable.")
     response_type: str = Field(..., description="Expected response type.", enum=["text", "json"])

@@ -1,58 +1,109 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import ChainStarter from './ChainStarter';
+import { MessageBox, Input, Button } from 'react-chat-elements';
+import 'react-chat-elements/dist/main.css';
 
-function UserInput({ websocket }) {
-  const [message, setMessage] = useState('');
+const UserInput = ({ websocket, mockMessage }) => {
+  const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState('');
+  
+  const endOfMessagesRef = useRef(null);
 
   useEffect(() => {
-    // Listen for messages on the websocket connection
+    const handleMessageEvent = (data) => {
+      setMessages((prevMessages) => [...prevMessages, { type: 'incoming', text: data.message.message, variable: data.message.variable, correlation_id: data.message.correlation_id }]);
+    };
+
     websocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data && data.message) {
-        setMessage(data.message);
+      if (data.message) {
+        handleMessageEvent(data);
+      } else if (data.status) {
+        console.log(data.status);
       }
     };
   }, [websocket]);
 
+  useEffect(() => {
+    if (mockMessage) {
+      setMessages((prevMessages) => [...prevMessages, { type: 'incoming', text: mockMessage.message, variable: mockMessage.variable }]);
+    }
+  }, [mockMessage]);
+
+  useEffect(() => {
+    endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
   const sendInput = () => {
     if (websocket.readyState === WebSocket.OPEN) {
-      websocket.send(JSON.stringify({ userInput }));
-      setUserInput(''); // Clear input field after sending
+      websocket.send(JSON.stringify({ "type": "user_entry", "user_entry": userInput, "correlation_id": messages[messages.length - 1]?.correlation_id }));
+      setMessages((prevMessages) => [...prevMessages, { type: 'outgoing', text: userInput }]);
+      console.log('Input sent');
+      setUserInput('');
     }
   };
 
-  const inputStyle = {
-    width: '600px', // Making the input box wider
-    height: '300px',
-    fontSize: '1.5em',
-    border: '1px solid black',
-    margin: '20px 0' // Add some vertical space
+  const handleButtonClick = (key) => {
+    console.log(key);
   };
 
-  const buttonStyle = {
-    width: '50%', // Making the button wider
-    padding: '15px 0', // Making the button taller
-    fontSize: '1.5em',
-    margin: '0 auto', // Center button horizontally
-    display: 'block', // Display button below the text box
-    background: 'red'
+  const renderMessage = (msg, index) => {
+    if (msg.variable) {
+      return (
+        <div key={index}>
+          <MessageBox
+            position={msg.type === 'incoming' ? 'left' : 'right'}
+            type={'text'}
+            text={msg.text}
+          />
+          <div style={{ display: 'flex', flexDirection: 'row' }}>
+            {Object.keys(msg.variable).map((key) => (
+              <Button
+                key={key}
+                text={key}
+                onClick={() => handleButtonClick(key)}
+              />
+            ))}
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <MessageBox
+          key={index}
+          position={msg.type === 'incoming' ? 'left' : 'right'}
+          type={'text'}
+          text={msg.text}
+        />
+      );
+    }
   };
 
   return (
     <div>
-      <p>{message}</p>
-      <input
-        type="text"
+      <ChainStarter websocket={websocket} />
+      {/* Display messages */}
+      <div style={{ maxHeight: '500px', width: '800px', overflowY: 'auto', border: '1px solid black', margin: '10px' }}>
+        {messages.map(renderMessage)}
+      </div>
+
+      {/* Input field */}
+      <Input
+        placeholder="Enter your input here"
         value={userInput}
         onChange={(e) => setUserInput(e.target.value)}
-        placeholder="Enter your input here"
-        style={inputStyle}
+        onKeyPress={(e) => e.key === 'Enter' && sendInput()}
+        rightButtons={
+          <Button
+            color='white'
+            backgroundColor='black'
+            text='Send'
+            onClick={sendInput}
+          />
+        }
       />
-      <button onClick={sendInput} style={buttonStyle}>
-        Send
-      </button>
     </div>
   );
-}
+};
 
 export default UserInput;

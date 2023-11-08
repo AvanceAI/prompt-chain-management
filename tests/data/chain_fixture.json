@@ -1,1 +1,88 @@
-{"chain_id": "based-off-top-google-results-no-citations", "chain_title": "Write Article Based Off Top Google Results (No Citations)", "chain_description": "Chain for writing an article that is similar but different to top google results for the chosen topic.", "version": "1.0.0", "steps": [{"step_id": "search-for-topic", "description": "Uses Google Search API to perform a search on a topic and return the top results in JSON form.", "step_type": "search", "response_type": "json", "dependencies": [{"name": "topic", "type": "str", "class": "user_entry"}], "outputs": [{"name": "search_results", "type": "json", "class": "output"}], "actions": null}, {"step_id": "find-themes", "description": "Analyzes the search results and finds the most common themes, which are then presented to the user to refine the article topic.", "step_type": "llm-query", "prompt_text": "", "response_type": "json", "dependencies": [{"name": "search_results", "type": "json", "class": "input"}], "outputs": [{"name": "themes", "type": "json", "class": "output"}], "actions": [{"name": "select-preferred-theme", "type": "select", "data": "themes"}]}], "_default": {}}
+{
+    "chain_id": "based-off-top-google-results-no-citations",
+    "chain_title": "Write Article Based Off Top Google Results (No Citations)",
+    "chain_description": "Chain for writing an article that is similar but different to top google results for the chosen topic.",
+    "version": "1.0.0",
+    "steps": [
+      {
+        "step_id": "search-for-topic",
+        "description": "Uses Google Search API to perform a search on a topic and return the top results in JSON form.",
+        "agent": "search",
+        "response_type": "json",
+        "dependencies": [
+          {
+            "name": "topic",
+            "type": "str",
+            "class": "user_entry",
+            "message": "What topic would you like to write about?"
+          }
+      ],
+        "outputs": [
+          {
+            "name": "search_results",
+            "type": "json",
+            "class": "output"
+          }
+        ],
+        "actions": null
+      },
+      {
+        "step_id": "find-themes",
+        "description": "Analyzes the search results and finds the most common themes, which are then presented to the user to refine the article topic.",
+        "agent": "llm-query",
+        "query_params": {
+          "model": "gpt-3.5-turbo-instruct",
+          "temperature": 0,
+          "max_tokens": 1000,
+          "top_p": 1,
+          "frequency_penalty": 0,
+          "presence_penalty": 0
+        },
+        "prompt_text": "I have a list of search results related to the topic \"{topic}\". Please analyze the following data and group the results into 3-4 thematic categories based on their content and purpose. You may ignore uncommon themes and focus on the most prominent categories presented in these results. Here is the data:\n\n\n{search_results}\n\n\nBased on the titles and descriptions, please provide a brief overview of each identified category and list which entries (by their number) belong to each category.\n\nFormat your response like this.\n\nResponse:\n{{\n\"0\": {{\n       \"theme\": \"First theme identified\",\n       \"results\": [0, 4, 5, 7, 9] \n       }},\n\"1\": {{\n       \"theme\": \"First theme identified\",\n       \"results\": [1,8,11,13] \n       }},\n\"2\": {{\n       \"theme\": \"First theme identified\",\n       \"results\": [2,3, 6] \n       }}\n}}\n\n\nResponse:\n",
+        "response_type": "json",
+        "dependencies": [
+          {
+            "name": "topic",
+            "type": "str",
+            "class": "input"
+          },
+          {
+            "name": "search_results",
+            "type": "json",
+            "class": "input"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "themes",
+            "type": "json",
+            "class": "output"
+          }
+        ],
+        "actions": null
+      },
+      {
+        "step_id": "select-theme-and-create-outlines",
+        "description": "Prompts user to select the preferred theme for the article and then creates outlines based on articles that matched that theme.",
+        "agent": "option-select-request-parallel-llm-query",
+        "response_type": "json",
+        "dependencies": [
+          {
+            "name": "select-theme",
+            "type": "int",
+            "class": "user_entry",
+            "message": "Which theme would you like to use for your article?"
+          }
+      ],
+        "outputs": [
+          {
+            "name": "outlines",
+            "type": "json",
+            "class": "output"
+          }
+        ],
+        "actions": null
+      }
+    ]
+  }
+  
