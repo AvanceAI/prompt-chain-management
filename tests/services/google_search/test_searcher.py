@@ -1,6 +1,6 @@
 import os
 import pytest
-from src.services.google_search.searcher import Searcher
+from src.step_execution.tools.google_search.searcher import Searcher
 
 @pytest.fixture()
 def searcher():

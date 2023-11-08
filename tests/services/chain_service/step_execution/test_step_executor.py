@@ -1,7 +1,7 @@
 import pytest
 import asyncio
 from unittest.mock import AsyncMock
-from src.services.chain_service.step_execution.step_executor import StepExecutor
+from src.step_execution.step_executor import StepExecutor
 from src.models.chain import Step
 from src.repository.prompt_db.json_repository import JsonRepository
 from src.services.chain_service.dependency_resolver import DependencyResolver

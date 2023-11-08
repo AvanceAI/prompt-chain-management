@@ -1,4 +1,4 @@
-from src.services.chain_service.step_execution.step_executor import StepExecutor
+from src.step_execution.step_executor import StepExecutor
 from src.repository.prompt_db.json_repository import JsonRepository
 from src.models.chain import Chain
 from src.core.logger import get_logger

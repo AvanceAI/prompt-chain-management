@@ -7,7 +7,7 @@ from src.utils.results_saver import save_results
 
 logger = get_logger(__name__)
 
-class LlmQueryExecutor:
+class LlmQueryAgent:
     def __init__(self, run_id, save_dir="outputs"):
         self.run_id = run_id
         self.save_dir = os.path.join(save_dir, run_id)

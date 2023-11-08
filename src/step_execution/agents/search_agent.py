@@ -1,12 +1,12 @@
 import os
-from src.services.google_search.searcher import Searcher
+from src.step_execution.tools.google_search.searcher import Searcher
 from src.models.chain import Step
 from src.core.logger import get_logger
 from src.utils.results_saver import save_results
 
 logger = get_logger(__name__)
 
-class SearchExecutor:
+class SearchAgent:
     def __init__(self, run_id, save_dir="outputs"):
         self.searcher = Searcher()
         self.save_dir = os.path.join(save_dir, run_id)

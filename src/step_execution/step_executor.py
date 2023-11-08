@@ -1,7 +1,7 @@
 from src.models.chain import Step
 from src.services.chain_service.dependency_resolver import DependencyResolver
-from src.services.chain_service.step_execution.search_executor import SearchExecutor
-from src.services.chain_service.step_execution.llm_query_executor import LlmQueryExecutor
+from src.step_execution.agents.search_agent import SearchAgent
+from src.step_execution.agents.llm_query_agent import LlmQueryAgent
 from src.core.logger import get_logger
 
 logger = get_logger(__name__)
@@ -21,9 +21,9 @@ class StepExecutor:
         self.variables.update(dependencies)
         if step.agent == "search":
             # Execute the search with the resolved dependencies (now stored in self.variables)
-            result = SearchExecutor(run_id=self.run_id, save_dir=self.save_dir).execute(step, self.variables)
+            result = SearchAgent(run_id=self.run_id, save_dir=self.save_dir).execute(step, self.variables)
         elif step.agent == "llm-query":
-            result =  LlmQueryExecutor(run_id=self.run_id, save_dir=self.save_dir).execute(step, self.variables)
+            result =  LlmQueryAgent(run_id=self.run_id, save_dir=self.save_dir).execute(step, self.variables)
         if step.response_type == "json":
             if isinstance(result, tuple):
                 raise NotImplementedError("Tuple results not supported yet. Assuming outputs array is only length 1")
