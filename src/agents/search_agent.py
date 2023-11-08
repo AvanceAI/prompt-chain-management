@@ -1,19 +1,28 @@
-import os
+from typing import List, Union
+from pydantic import BaseModel, Field
 from src.tools.google_search.searcher import Searcher
-from src.models.chain import Step
 from src.core.logger import get_logger
-from src.utils.results_saver import save_results
+from src.utils.dependency_resolver import resolve_dependencies
 
 logger = get_logger(__name__)
 
-class SearchAgent:
-    def __init__(self, run_id, save_dir="outputs"):
-        self.searcher = Searcher()
-        self.save_dir = os.path.join(save_dir, run_id)
+class AgentParams(BaseModel):
+    dependencies: Union[List[str], None] = Field(None, description="List of dependencies/variables that the agent needs to execute its task/step.")
+    total_results: Union[int, None] = Field(None, description="The total number of results to return.")
 
-    def execute(self, step: Step, variables: dict):
+class SearchAgent:
+    def __init__(self, agent_params):
+        self.agent_params = AgentParams(**agent_params)
+        self.searcher = Searcher(total_results=self.agent_params.total_results)
+
+    def execute(self, variable_store):
         logger.info("Executing search step")
-        results = self.searcher.run(query=variables["topic"])
-        save_results(self.save_dir, results, step=step)
+        
+        if len(self.agent_params.dependencies) > 1:
+            raise ValueError("SearchAgent can only have one dependency.")
+        
+        dependencies = resolve_dependencies(self.agent_params, variable_store)
+        
+        results = self.searcher.run(query=dependencies["topic"])
         logger.info("Search step executed successfully")
         return results

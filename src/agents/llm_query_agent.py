@@ -1,10 +1,10 @@
-import os
 from typing import List, Union
 from pydantic import BaseModel, Field
 from src.models.chain import QueryParams
 from src.repository.openai.query import Query
 from src.repository.openai.completion_query import CompletionQuery
 from src.core.logger import get_logger
+from src.utils.dependency_resolver import resolve_dependencies
 
 logger = get_logger(__name__)
 
@@ -41,12 +41,9 @@ class LlmQueryAgent:
     
     def execute(self, variable_store):
         logger.info("Executing LLM query self.agent_params")
+ 
+        dependencies = resolve_dependencies(self.agent_params, variable_store)
         
-        dependencies = {}
-        if self.agent_params.dependencies:
-            for dependency in self.agent_params.dependencies:
-                dependencies[dependency] = variable_store.get_variable(dependency)
-
         system_message = self.agent_params.prompt_text.format(**dependencies)
         if self.agent_params.query_params.model == "gpt-3.5-turbo-instruct":
             results = self._run_completions_api_query(system_message)
