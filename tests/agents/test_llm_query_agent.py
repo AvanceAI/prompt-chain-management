@@ -20,11 +20,12 @@ def agent_params():
 
 @pytest.fixture
 def variable_store(search_results):
-    return VariableStore(variables={"topic": "Everything", "search_results": search_results})
+    return VariableStore(save_dir="tests", variables={"topic": "Everything", "search_results": search_results})
 
-def test_execute(agent_params, variable_store):
+@pytest.mark.asyncio
+async def test_execute(agent_params, variable_store):
     agent = LlmQueryAgent(agent_params)
-    result = agent.execute(variable_store)
+    result = await agent.execute(variable_store)
     assert isinstance(result, dict)
 
 @pytest.fixture

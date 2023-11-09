@@ -11,10 +11,11 @@ def agent_params():
 
 @pytest.fixture
 def variable_store():
-    return VariableStore(variables={"topic": "Everything"})
+    return VariableStore(save_dir="tests",variables={"topic": "Everything"})
 
-def test_execute(agent_params, variable_store):
+@pytest.mark.asyncio
+async def test_execute(agent_params, variable_store):
     agent = SearchAgent(agent_params)
-    result = agent.execute(variable_store)
+    result = await agent.execute(variable_store)
     assert isinstance(result, dict)
     assert len(result.keys()) == 10

@@ -20,13 +20,12 @@ def agent_params():
 
 @pytest.fixture
 def variable_store(themes, search_results):
-    return VariableStore(variables={"search_results": search_results, "themes": themes, "selected_theme_key": '0'})
+    return VariableStore(save_dir="tests", variables={"search_results": search_results, "themes": themes, "selected_theme_key": '0'})
 
-def test_execute(agent_params, variable_store):
+@pytest.mark.asyncio
+async def test_execute(agent_params, variable_store):
     agent = MultiprocessingOutlineAgent(agent_params)
-    result = agent.execute(variable_store)
-    print(type(result))
-    print(result)
+    result = await agent.execute(variable_store)
     assert isinstance(result, dict)
 
 @pytest.fixture
