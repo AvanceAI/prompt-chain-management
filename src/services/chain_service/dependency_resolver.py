@@ -8,9 +8,9 @@ class DependencyResolver:
         self.send_callback = send_callback
         self.pending_responses = {}  # Store futures awaiting user input
 
-    async def request_user_input(self, correlation_id, message):
+    async def request_user_input(self, correlation_id, message, variable=None):
         logger.info(f"Sending request for user input with correlation_id: {correlation_id}")
-        await self.send_callback({"type": "user_entry", "correlation_id": correlation_id, "message": message})
+        await self.send_callback({"type": "user_entry", "correlation_id": correlation_id, "message": message, "variable": variable})
         self.pending_responses[correlation_id] = asyncio.get_event_loop().create_future()
 
     async def get_user_response(self, correlation_id):

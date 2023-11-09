@@ -1,12 +1,16 @@
+from src.step_execution.step_result_saver import StepResultSaver
+
 class VariableStore:
-    def __init__(self, result_saver=None, variables=None):
-        self.result_saver = result_saver
+    def __init__(self, save_dir, variables=None):
+        self.result_saver = StepResultSaver(save_dir=save_dir)
         self._variables = variables or {}
 
-    def update_variables(self, step_id, new_variables):
-        self._variables.update(new_variables)
-        # Optionally save the state after each update
-        self.result_saver.save_step_result(step_id, self._variables)
+    def set_save_variable(self, variable_name, result):
+        """
+        variable_name is Output.name
+        """
+        self.set_variable(key=variable_name, value=result)
+        self.result_saver.save_step_result(variable_name=variable_name, result=result)
 
     def get_variable(self, key):
         return self._variables.get(key)

@@ -72,7 +72,7 @@ class MultiprocessingOutlineAgent:
         dependencies = resolve_dependencies(self.agent_params, variable_store)
         
         indices = dependencies["themes"][dependencies["selected_theme_key"]]["results"]
-        search_results = dependencies["search_results"][indices]
+        search_results = [dependencies["search_results"][index] for index in indices]
         hrefs = [result["href"] for result in search_results]
         
         manager = Manager()

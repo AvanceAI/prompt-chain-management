@@ -44,7 +44,7 @@ const UserInput = ({ websocket, mockMessage }) => {
   };
 
   const handleButtonClick = (key) => {
-    console.log(key);
+    websocket.send(JSON.stringify({ "type": "user_entry", "user_entry": key, "correlation_id": messages[messages.length - 1]?.correlation_id }));
   };
 
   const renderMessage = (msg, index) => {
@@ -60,7 +60,7 @@ const UserInput = ({ websocket, mockMessage }) => {
             {Object.keys(msg.variable).map((key) => (
               <Button
                 key={key}
-                text={key}
+                text={JSON.stringify(msg.variable[key])}
                 onClick={() => handleButtonClick(key)}
               />
             ))}
