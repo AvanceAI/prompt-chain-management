@@ -1,4 +1,3 @@
-from tinydb import TinyDB, Query
 from src.core.logger import get_logger
 from src.utils.utils import read_json
 
