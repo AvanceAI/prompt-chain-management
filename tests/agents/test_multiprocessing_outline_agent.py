@@ -1,30 +1,32 @@
 import pytest
 from src.step_execution.variable_store import VariableStore
-from src.agents.llm_query_agent import LlmQueryAgent
+from src.agents.multiprocessing_outline_agent import MultiprocessingOutlineAgent 
 
 @pytest.fixture
 def agent_params():
     return {
-        "dependencies": ["topic", "search_results"],
+        "dependencies": ["search_results", "themes", "selected_theme_key"],
                 "query_params": {
-          "model": "gpt-3.5-turbo-instruct",
+          "model": "gpt-4",
           "temperature": 0,
-          "max_tokens": 1000,
-          "top_p": 1,
+          "max_tokens": 2000,
+          "top_p": 0,
           "frequency_penalty": 0,
           "presence_penalty": 0,
           "eval_literal": True
         },
-        "prompt_text": "I have a list of search results related to the topic \"{topic}\". Please analyze the following data and group the results into 3-4 thematic categories based on their content and purpose. You may ignore uncommon themes and focus on the most prominent categories presented in these results. Here is the data:\n\n\n{search_results}\n\n\nBased on the titles and descriptions, please provide a brief overview of each identified category and list which entries (by their number) belong to each category.\n\nFormat your response like this.\n\nResponse:\n{{\n\"0\": {{\n       \"theme\": \"First theme identified\",\n       \"results\": [0, 4, 5, 7, 9] \n       }},\n\"1\": {{\n       \"theme\": \"First theme identified\",\n       \"results\": [1,8,11,13] \n       }},\n\"2\": {{\n       \"theme\": \"First theme identified\",\n       \"results\": [2,3, 6] \n       }}\n}}\n\n\nResponse:\n",
+        "prompt_text": "Create an outline of the article below that includes the title and every section. Under each section, produce a detailed bullet point list that contains a concise summary of every piece of important or relevant information in the article. Don't miss the small but important details.\n\nAs you create the bullet point lists, state the information as succinctly as possible with as few words as possible. Paraphrase the information so that it contains the same meaning but does not use the same words of the original article. Include all relevant numbers, time lines, and dates.\n- Example: Requirements for K-1 applicants include proving that the marriage is bonafide and that they entered in marriage in good faith.  The marriage must be at least 2 years old. Applicants must be able to prove bonafide and good faith requirements within 10 days of interview and before October 2022. --> K-1 applicants must prove marriage > 2 years old and entered in good faith. Marriage must be bonafide. Must prove bonafide and good faith within 10 days of interview and before October 2022.\n\nArticle:\n\n{{article}}\n\n\n// end of article\n\nPrompt Reminder:\nAs you create the bullet point lists, state the information as succinctly as possible with as few words as possible. Paraphrase the information so that it contains the same meaning but does not use the same words of the original article. Include all relevant numbers, time lines, and dates.\n- Example: Requirements for K-1 applicants include proving that the marriage is bonafide and that they entered in marriage in good faith.  The marriage must be at least 2 years old. Applicants must be able to prove bonafide and good faith requirements within 10 days of interview and before October 2022. --> K-1 applicants must prove marriage > 2 years old and entered in good faith. Marriage must be bonafide. Must prove bonafide and good faith within 10 days of interview and before October 2022.\n",
     }
 
 @pytest.fixture
-def variable_store(search_results):
-    return VariableStore(variables={"topic": "Everything", "search_results": search_results})
+def variable_store(themes, search_results):
+    return VariableStore(variables={"search_results": search_results, "themes": themes, "selected_theme_key": '0'})
 
 def test_execute(agent_params, variable_store):
-    agent = LlmQueryAgent(agent_params)
+    agent = MultiprocessingOutlineAgent(agent_params)
     result = agent.execute(variable_store)
+    print(type(result))
+    print(result)
     assert isinstance(result, dict)
 
 @pytest.fixture
@@ -131,3 +133,7 @@ def search_results():
             "href": "https://medium.com/message/everything-is-broken-81e5f33a24e1"
         }
     }
+    
+@pytest.fixture
+def themes():
+    return {'0': {'theme': 'Software/Technology', 'results': [0, 2]}, '1': {'theme': 'Food/Cooking', 'results': [1, 14, 16]}, '2': {'theme': 'Definition/Explanation', 'results': [3, 6]}, '3': {'theme': 'Entertainment', 'results': [4, 11, 19]}, '4': {'theme': 'Education/Teaching', 'results': [5, 15]}, '5': {'theme': 'Music', 'results': [7, 18]}, '6': {'theme': 'Social Media/Influencers', 'results': [8]}, '7': {'theme': 'Film/TV', 'results': [9]}, '8': {'theme': 'Books/Literature', 'results': [10]}, '9': {'theme': 'Christmas/Holidays', 'results': [12, 13]}, '10': {'theme': 'Productivity/Planning', 'results': [15]}, '11': {'theme': 'Chocolate/Desserts', 'results': [16]}, '12': {'theme': 'Data Analysis/Selection', 'results': [17]}, '13': {'theme': 'Music', 'results': [18]}, '14': {'theme': 'Technology/Internet', 'results': [19]}}
