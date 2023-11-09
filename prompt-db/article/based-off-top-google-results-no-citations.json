@@ -5,84 +5,161 @@
     "version": "1.0.0",
     "steps": [
       {
+        "step_id": "prompt-user-for-topic",
+        "agent": "user-text-response",
+        "agent_params": {
+          "dependencies": null,
+          "message": "What topic would you like to write about?"
+        },
+        "output": {
+          "name": "topic",
+          "type": "text"
+        }
+      },
+      {
         "step_id": "search-for-topic",
-        "description": "Uses Google Search API to perform a search on a topic and return the top results in JSON form.",
         "agent": "search",
-        "response_type": "json",
-        "dependencies": [
-          {
-            "name": "topic",
-            "type": "str",
-            "class": "user_entry",
-            "message": "What topic would you like to write about?"
-          }
-      ],
-        "outputs": [
-          {
-            "name": "search_results",
-            "type": "json",
-            "class": "output"
-          }
-        ],
-        "actions": null
+        "agent_params": {
+          "dependencies": ["topic"],
+          "total_results": 20
+        },
+        "output": {
+          "name": "search_results",
+          "type": "json"
+        }
       },
       {
         "step_id": "find-themes",
-        "description": "Analyzes the search results and finds the most common themes, which are then presented to the user to refine the article topic.",
         "agent": "llm-query",
-        "query_params": {
-          "model": "gpt-3.5-turbo-instruct",
-          "temperature": 0,
-          "max_tokens": 1000,
-          "top_p": 1,
-          "frequency_penalty": 0,
-          "presence_penalty": 0
-        },
-        "prompt_text": "I have a list of search results related to the topic \"{topic}\". Please analyze the following data and group the results into 3-4 thematic categories based on their content and purpose. You may ignore uncommon themes and focus on the most prominent categories presented in these results. Here is the data:\n\n\n{search_results}\n\n\nBased on the titles and descriptions, please provide a brief overview of each identified category and list which entries (by their number) belong to each category.\n\nFormat your response like this.\n\nResponse:\n{{\n\"0\": {{\n       \"theme\": \"First theme identified\",\n       \"results\": [0, 4, 5, 7, 9] \n       }},\n\"1\": {{\n       \"theme\": \"First theme identified\",\n       \"results\": [1,8,11,13] \n       }},\n\"2\": {{\n       \"theme\": \"First theme identified\",\n       \"results\": [2,3, 6] \n       }}\n}}\n\n\nResponse:\n",
-        "response_type": "json",
-        "dependencies": [
-          {
-            "name": "topic",
-            "type": "str",
-            "class": "input"
+        "agent_params": {
+          "dependencies": ["topic", "search_results"],
+          "query_params": {
+            "model": "gpt-4-1106-preview",
+            "temperature": 0,
+            "max_tokens": 2000,
+            "top_p": 1,
+            "frequency_penalty": 0,
+            "presence_penalty": 0
           },
-          {
-            "name": "search_results",
-            "type": "json",
-            "class": "input"
-          }
-        ],
-        "outputs": [
-          {
-            "name": "themes",
-            "type": "json",
-            "class": "output"
-          }
-        ],
-        "actions": null
+          "prompt_text": "I have a list of search results related to the topic \"{topic}\". Please analyze the following data and group the results into 3-4 thematic categories based on their content and purpose. You may ignore uncommon themes and focus on the most prominent categories presented in these results. Here is the data:\n\n\n{search_results}\n\n\nBased on the titles and descriptions, please provide a brief overview of each identified category and list which entries (by their number) belong to each category.\n\nFormat your response like this.\n\nResponse:\n{{\n\"0\": {{\n       \"theme\": \"First theme identified\",\n       \"results\": [0, 4, 5, 7, 9] \n       }},\n\"1\": {{\n       \"theme\": \"First theme identified\",\n       \"results\": [1,8,11,13] \n       }},\n\"2\": {{\n       \"theme\": \"First theme identified\",\n       \"results\": [2,3, 6] \n       }}\n}}\n\n\nResponse:\n"
+        },
+        "output": {
+          "name": "themes",
+          "type": "json"
+        }
       },
       {
-        "step_id": "select-theme-and-create-outlines",
-        "description": "Prompts user to select the preferred theme for the article and then creates outlines based on articles that matched that theme.",
-        "agent": "option-select-request-parallel-llm-query",
-        "response_type": "json",
-        "dependencies": [
-          {
-            "name": "select-theme",
-            "type": "int",
-            "class": "user_entry",
-            "message": "Which theme would you like to use for your article?",
-            "variable": "themes"
-          }
-      ],
-        "outputs": [
-          {
-            "name": "outlines",
-            "type": "json",
-            "class": "output"
-          }
-        ],
-        "actions": null
+        "step_id": "prompt-user-to-select-theme",
+        "agent": "user-selection-response",
+        "agent_params": {
+          "dependencies": ["themes"],
+          "message": "Please select a theme that you would like to write about."
+        },
+        "output": {
+          "name": "selected_theme_key",
+          "type": "text"
+        }
+      },
+      {
+        "step_id": "create-summary-outlines",
+        "agent": "multiprocessing-outline",
+        "agent_params": {
+          "dependencies": ["search_results", "themes", "selected_theme_key"],
+          "query_params": {
+            "model": "gpt-4-1106-preview",
+            "temperature": 0,
+            "max_tokens": 2000,
+            "top_p": 1,
+            "frequency_penalty": 0,
+            "presence_penalty": 0
+          },
+          "prompt_text": "Create an outline of the article below that includes the title and every section. Under each section, produce a detailed bullet point list that contains a concise summary of every piece of important or relevant information in the article. Don't miss the small but important details.\n\nAs you create the bullet point lists, state the information as succinctly as possible with as few words as possible. Paraphrase the information so that it contains the same meaning but does not use the same words of the original article. Include all relevant numbers, time lines, and dates.\n- Example: Requirements for K-1 applicants include proving that the marriage is bonafide and that they entered in marriage in good faith.  The marriage must be at least 2 years old. Applicants must be able to prove bonafide and good faith requirements within 10 days of interview and before October 2022. --> K-1 applicants must prove marriage > 2 years old and entered in good faith. Marriage must be bonafide. Must prove bonafide and good faith within 10 days of interview and before October 2022.\n\nArticle:\n\n{article}\n\n\n// end of article\n\nPrompt Reminder:\nAs you create the bullet point lists, state the information as succinctly as possible with as few words as possible. Paraphrase the information so that it contains the same meaning but does not use the same words of the original article. Include all relevant numbers, time lines, and dates.\n- Example: Requirements for K-1 applicants include proving that the marriage is bonafide and that they entered in marriage in good faith.  The marriage must be at least 2 years old. Applicants must be able to prove bonafide and good faith requirements within 10 days of interview and before October 2022. --> K-1 applicants must prove marriage > 2 years old and entered in good faith. Marriage must be bonafide. Must prove bonafide and good faith within 10 days of interview and before October 2022.\n"
+        },
+        "output": {
+          "name": "summary_outlines",
+          "type": "json"
+        }
+      },
+      {
+        "step_id": "create-new-article-outline-options",
+        "agent": "llm-query",
+        "agent_params": {
+          "dependencies": ["topic", "summary_outlines"],
+          "repitions": 3,
+          "query_params": {
+            "model": "gpt-4-1106-preview",
+            "temperature": 0,
+            "max_tokens": 2000,
+            "top_p": 1,
+            "frequency_penalty": 0,
+            "presence_penalty": 0
+          },
+          "prompt_text": "Below are multiple outlines for similar articles on the same or similar topic. Analyze the outlines below and create a hybrid outline that combines the best elements of each article.\n\nCreate a new title for the hybrid article.\n\nIf there is an FAQ or similar section, that section should be last in the outline.\n\nAs you create the new outline, keep these things in mind:\n1. Our audience does not have much knowledge of the subject, which means we should probably start with a brief \"What is X\" or \"Introduction\" section.\n2. We want to present information in a logical manner for someone who is reading about the topic for the first time\n3. We want the article to be as dense with information as possible. \n4. We do not want to repeat information.\n5. We do not want to formally introduce sections and we do not want to recap sections after we have written them.\n\n\nOutline 1: \n\n{outline_1}\n\n\nOutline 2:\n\n{outline_2}\n\n\n// end original outlines\n\nCopy the entire bullet point to the hybrid outline. If you include a bullet point in the hybrid outline, it should have all of the text of the bullet point from the original outline, or more.\n\nExample:\nbullet point in old outline = The requirements for the K-1 visa include being able to prove you entered into the marriage in good faith and that your marriage is genuine \n\nbullet point in hybrid outline = The requirements for the K-1 visa include being able to prove you entered into the marriage in good faith and that your marriage is genuine \n\nEvery bullet point in the hybrid outline should be copied exactly.\n\n\nHybrid Outline:\n" 
+        },
+        "output": {
+          "name": "new_article_outlines",
+          "type": "json"
+        }
+      },
+      {
+        "step_id": "prompt-user-to-select-outline",
+        "agent": "user-selection-response",
+        "agent_params": {
+          "dependencies": ["new_article_outlines"],
+          "message": "Please select an outline that you would like to use for your article."
+        },
+        "output": {
+          "name": "selected_outline_key",
+          "type": "text"
+        }
+      },
+      {
+        "step_id": "prompt-user-for-guidelines",
+        "agent": "user-text-response",
+        "agent_params": {
+          "dependencies": null,
+          "message": "Please provide any guidelines that you would like to use for your article."
+        },
+        "output": {
+          "name": "writing_guidelines",
+          "type": "text"
+        }
+      },
+      {
+        "step_id": "get-num-sections-and-num-faq-section",
+        "agent": "llm-query",
+        "agent_params": {
+          "dependencies": ["new_article_outlines", "selected_outline_key"],
+          "query_params": {
+            "model": "gpt-4-1106-preview",
+            "temperature": 0,
+            "max_tokens": 2000,
+            "top_p": 1,
+            "frequency_penalty": 0,
+            "presence_penalty": 0
+          },
+          "prompt_text": "Below is the outline for an article we are planning to write:\n\n{outline}\n\n// end outline\n\n\nReturn a JSON object with the following keys:\n\n1. num_sections: int, number of sections in the outline\n2. faq_num: int or none, section number of the faq or similar section if it exists, or none if there is no faq or similar section\n\nExample response for outline with faq or similar section:\n{\n\"num_sections\": 3,\n\"faq_num\": 3\n}\n\nExample response for outline with no faq or similar section:\n{\n\"num_sections\": 3,\n\"faq_num\": \"none\"\n}"
+        }
+      },
+      {
+        "step_id": "write-article",
+        "agent": "sequential-writer",
+        "agent_params": {
+          "dependencies": ["new_article_outlines", "selected_outline_key", "writing_guidelines"],
+          "query_params": {
+            "model": "gpt-4-1106-preview",
+            "temperature": 0,
+            "max_tokens": 2000,
+            "top_p": 1,
+            "frequency_penalty": 0,
+            "presence_penalty": 0
+          },
+          "prompt_text": "TODO" 
+        },
+        "output": {
+          "name": "article",
+          "type": "text"
+        }
       }
     ]
   }
