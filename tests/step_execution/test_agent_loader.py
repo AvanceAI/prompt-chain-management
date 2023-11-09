@@ -1,13 +1,13 @@
 import pytest
 from src.step_execution.agent_loader import AgentLoader
-from src.services.chain_service.dependency_resolver import DependencyResolver
+from src.services.chain_service.input_resolver import InputResolver
 
 # Dummy run_id for testing purpose
 test_run_id = 'test_run_id'
 # Dummy save_dir for testing purpose
 test_save_dir = 'test_outputs'
-# Dummy dependency resolver, replace DependencyResolver with a mock or a fixture if needed
-dependency_resolver = DependencyResolver()
+# Dummy dependency resolver, replace InputResolver with a mock or a fixture if needed
+input_resolver = InputResolver()
 
 
 @pytest.fixture(params=[
@@ -36,7 +36,7 @@ def mock_params():
 class TestAgentLoader:
     @pytest.fixture(autouse=True)
     def setup(self):
-        self.agent_loader = AgentLoader(dependency_resolver, test_run_id, test_save_dir)
+        self.agent_loader = AgentLoader(input_resolver, test_run_id, test_save_dir)
 
     def test_load_agent(self, agent_name, mock_params):
         # Attempt to load the agent using the loader.

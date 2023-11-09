@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 from src.step_execution.step_executor import StepExecutor
 from src.models.chain import Step
 from src.repository.prompt_db.json_repository import JsonRepository
-from src.services.chain_service.dependency_resolver import DependencyResolver
+from src.services.chain_service.input_resolver import InputResolver
 
 def mock_repository(tmp_path):
     repository_file = tmp_path / "test_step_chain.json"
@@ -12,13 +12,13 @@ def mock_repository(tmp_path):
     return JsonRepository(filename=str(repository_file))
 
 @pytest.fixture
-def dependency_resolver():
+def input_resolver():
     send_callback = AsyncMock()
-    return DependencyResolver(send_callback=send_callback)
+    return InputResolver(send_callback=send_callback)
 
 @pytest.mark.asyncio
-async def test_execute_search_step(dependency_resolver):
-    step_executor = StepExecutor(run_id="test_run", save_dir="outputs", dependency_resolver=dependency_resolver)
+async def test_execute_search_step(input_resolver):
+    step_executor = StepExecutor(run_id="test_run", save_dir="outputs", input_resolver=input_resolver)
 
     step_dict = {
         "step_id": "search-for-topic",
@@ -56,7 +56,7 @@ async def test_execute_search_step(dependency_resolver):
     await asyncio.sleep(0.01) 
 
     # Simulate user input by calling resolve_user_input directly
-    dependency_resolver.resolve_user_input(correlation_id, user_input)
+    input_resolver.resolve_user_input(correlation_id, user_input)
 
     # Now await the step execution to complete
     search_results = await execute_task
@@ -64,7 +64,7 @@ async def test_execute_search_step(dependency_resolver):
     # Assert: Ensure that the search_results contain 20 keys as expected
     assert len(list(search_results.keys())) == 20
     # Additional assert can be done to check if the mock send_callback was called with the right parameters
-    dependency_resolver.send_callback.assert_called_once_with({
+    input_resolver.send_callback.assert_called_once_with({
         "type": "user_entry",
         "correlation_id": correlation_id,
         "message": step_dict['dependencies'][0]['message'],
@@ -183,8 +183,8 @@ async def test_execute_llm_query_step():
     }
           }
     
-    mock_resolver = DependencyResolver(send_callback=mock_send_callback)
-    step_executor = StepExecutor(run_id="test_run", save_dir="outputs", dependency_resolver=mock_resolver, variables=mock_variables)
+    mock_resolver = InputResolver(send_callback=mock_send_callback)
+    step_executor = StepExecutor(run_id="test_run", save_dir="outputs", input_resolver=mock_resolver, variables=mock_variables)
 
     step_dict = {
         "step_id": "find-themes",

@@ -3,7 +3,7 @@ from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
-class DependencyResolver:
+class InputResolver:
     def __init__(self, send_callback=None):
         self.send_callback = send_callback
         self.pending_responses = {}  # Store futures awaiting user input

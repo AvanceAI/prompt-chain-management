@@ -59,10 +59,10 @@ class ConnectionManager:
             user_input = json.loads(user_input)
         if 'correlation_id' in user_input:
             logger.info(f"Attempting to correlate user input for id: {user_input['correlation_id']}")
-            # Extract the correlation_id and resolve the future in the DependencyResolver
+            # Extract the correlation_id and resolve the future in the InputResolver
             correlation_id = user_input['correlation_id']
-            # Assume DependencyResolver is accessible through an instance variable
-            self.chain_service.step_executor.dependency_resolver.resolve_user_input(correlation_id, user_input['user_entry'])
+            # Assume InputResolver is accessible through an instance variable
+            self.chain_service.step_executor.input_resolver.resolve_user_input(correlation_id, user_input['user_entry'])
         else:
             logger.error("Received user input without correlation_id")
     
@@ -105,5 +105,5 @@ class ConnectionManager:
         if data.get("type") == "user_entry_response":
             correlation_id = data["correlation_id"]
             user_input = data["user_entry"]
-            # Notify the DependencyResolver about the user input
-            self.dependency_resolver.resolve_user_input(correlation_id, user_input)
+            # Notify the InputResolver about the user input
+            self.input_resolver.resolve_user_input(correlation_id, user_input)

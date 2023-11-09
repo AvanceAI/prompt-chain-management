@@ -10,19 +10,19 @@ class AgentParams(BaseModel):
     message: str = Field(None, description="The message to send to the user.")
 
 class UserSelectionResponseAgent:
-    def __init__(self, agent_params, dependency_resolver=None):
+    def __init__(self, agent_params, input_resolver=None):
         self.agent_params = AgentParams(**agent_params)
-        self.dependency_resolver = dependency_resolver
+        self.input_resolver = input_resolver
         self.correlation_id = uuid4().hex  # Create a correlation ID
 
     async def execute(self, variable_store):
         logger.info("Executing User Text Response step")
-        # Use the DependencyResolver to send the user input request message
+        # Use the InputResolver to send the user input request message
 
-        await self.dependency_resolver.request_user_input(
+        await self.input_resolver.request_user_input(
             self.correlation_id, 
             message=self.agent_params.message, 
             variable=variable_store.get_variable(self.agent_params.dependencies[0])
             )
-        response = await self.dependency_resolver.get_user_response(self.correlation_id)
+        response = await self.input_resolver.get_user_response(self.correlation_id)
         return response

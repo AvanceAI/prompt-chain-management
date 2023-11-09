@@ -2,19 +2,19 @@ import os
 import json
 from src.models.chain import Step
 from src.core.logger import get_logger
-from src.services.chain_service.dependency_resolver import DependencyResolver
+from src.services.chain_service.input_resolver import InputResolver
 from src.step_execution.variable_store import VariableStore
 from src.step_execution.agent_loader import AgentLoader
 
 logger = get_logger(__name__)
 
 class StepExecutor:
-    def __init__(self, run_id, save_dir="outputs", send_callback=None, dependency_resolver=None):
+    def __init__(self, run_id, save_dir="outputs", send_callback=None, input_resolver=None):
         self.run_id = run_id
         self.save_dir = os.path.join(save_dir, run_id)
-        self.dependency_resolver = dependency_resolver or DependencyResolver(send_callback=send_callback)
+        self.input_resolver = input_resolver or InputResolver(send_callback=send_callback)
         self.variable_store = VariableStore(save_dir=self.save_dir)
-        self.agent_loader = AgentLoader(self.dependency_resolver, self.run_id, self.save_dir)
+        self.agent_loader = AgentLoader(self.input_resolver, self.run_id, self.save_dir)
 
     def load_all_step_results(self):
         all_results = {}

@@ -11,7 +11,7 @@ class AgentParams(BaseModel):
     total_results: Union[int, None] = Field(None, description="The total number of results to return.")
 
 class SearchAgent:
-    def __init__(self, agent_params, dependency_resolver=None):
+    def __init__(self, agent_params, input_resolver=None):
         self.agent_params = AgentParams(**agent_params)
         self.searcher = Searcher(total_results=self.agent_params.total_results)
 

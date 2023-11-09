@@ -4,8 +4,8 @@ from src.core.logger import get_logger
 logger = get_logger(__name__)
 
 class AgentLoader:
-    def __init__(self, dependency_resolver, run_id, save_dir="outputs"):
-        self.dependency_resolver = dependency_resolver
+    def __init__(self, input_resolver, run_id, save_dir="outputs"):
+        self.input_resolver = input_resolver
         self.run_id = run_id
         self.save_dir = save_dir
 
@@ -27,4 +27,4 @@ class AgentLoader:
             logger.error(f"Class '{agent_class_name}Agent' not found in '{module_name}'. Ensure that the agent class is correctly named and implemented.")
             raise ImportError(f"Class '{agent_class_name}Agent' not found in '{module_name}'.") from err
         
-        return agent_class(agent_params=agent_params, dependency_resolver=self.dependency_resolver)
+        return agent_class(agent_params=agent_params, input_resolver=self.input_resolver)
