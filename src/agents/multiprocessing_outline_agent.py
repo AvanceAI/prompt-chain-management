@@ -66,7 +66,7 @@ class MultiprocessingOutlineAgent:
             shared_dict[href] = str(e)
             return None 
     
-    def execute(self, variable_store):
+    async def execute(self, variable_store):
         logger.info("Executing LLM query self.agent_params")
  
         dependencies = resolve_dependencies(self.agent_params, variable_store)

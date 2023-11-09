@@ -15,7 +15,7 @@ class SearchAgent:
         self.agent_params = AgentParams(**agent_params)
         self.searcher = Searcher(total_results=self.agent_params.total_results)
 
-    def execute(self, variable_store):
+    async def execute(self, variable_store):
         logger.info("Executing search step")
         
         if len(self.agent_params.dependencies) > 1:

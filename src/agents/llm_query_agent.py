@@ -39,7 +39,7 @@ class LlmQueryAgent:
         return query.run(eval_literal=self.agent_params.query_params.eval_literal)
     
     
-    def execute(self, variable_store):
+    async def execute(self, variable_store):
         logger.info("Executing LLM query self.agent_params")
  
         dependencies = resolve_dependencies(self.agent_params, variable_store)

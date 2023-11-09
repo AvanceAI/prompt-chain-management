@@ -31,6 +31,6 @@ class StepExecutor:
         
         agent_name = step.agent.replace("-", "_")  # Replace hyphens with underscores if agent names contain them
         agent = self.agent_loader.load_agent(agent_name=agent_name, agent_params=step.agent_params)
-        result = await agent.execute()
+        result = await agent.execute(variable_store=self.variable_store)
         
         return result

@@ -15,7 +15,7 @@ class UserTextResponseAgent:
         self.dependency_resolver = dependency_resolver
         self.correlation_id = uuid4().hex  # Create a correlation ID
 
-    async def execute(self):
+    async def execute(self, variable_store):
         logger.info("Executing User Text Response step")
         # Use the DependencyResolver to send the user input request message
         await self.dependency_resolver.request_user_input(self.correlation_id, self.agent_params.message)
