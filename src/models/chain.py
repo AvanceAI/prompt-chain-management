@@ -10,12 +10,17 @@ class QueryParams(BaseModel):
     presence_penalty: float = Field(..., description="The presence penalty for the query.")
     eval_literal: bool = Field(..., description="Whether to evaluate the literal or not.")
     
+class Output(BaseModel):
+    name: str = Field(..., description="The name of the output.")
+    type: str = Field(..., description="The type of the output.")
+    
 class Step(BaseModel):
     step_id: str = Field(..., description="Unique identifier for the Step.")
     description: str = Field(..., description="The description of the Step.")
     agent: str = Field(..., description="The agent to use for the Step.")
     agent_params: dict = Field(..., description="The parameters for the agent.")
-
+    output: Output = Field(..., description="The output of the Step.")
+    
 class Chain(BaseModel):
     chain_id: str = Field(..., description="Unique identifier for the chain.")
     chain_title: str = Field(..., description="Title of the chain.")
