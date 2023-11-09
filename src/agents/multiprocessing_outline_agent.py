@@ -5,7 +5,7 @@ from src.repository.openai.query import Query
 from src.repository.openai.completion_query import CompletionQuery
 from src.core.logger import get_logger
 from src.utils.dependency_resolver import resolve_dependencies
-# from src.tools.web_scrape.scraper import scrape_text_with_selenium
+from src.tools.web_scrape import get_text_requests
 import multiprocessing
 from multiprocessing import Manager
 
@@ -49,7 +49,7 @@ class MultiprocessingOutlineAgent:
         """
         try:
             # Scrape the text from the URL
-            scraped_text = scrape_text_with_selenium(href)
+            scraped_text = get_text_requests(url_to_scrape=href)
 
             # Determine which query to run based on the agent's parameters
             system_message = self.agent_params.prompt_text.format(scraped_text=scraped_text)

@@ -49,13 +49,14 @@ class ConnectionManager:
             while True:
                 data = await websocket.receive_text()
                 message = json.loads(data)
-                await self.process_user_input(message, websocket)
+                await self.process_user_input(message)
         except WebSocketDisconnect:
             self.disconnect(websocket)
 
-    async def process_user_input(self, user_input: str, websocket: WebSocket):
+    async def process_user_input(self, user_input):
         """Process the user input."""
-        # Here user_input is the actual content of the user's response along with the correlation_id
+        if isinstance(user_input, str):
+            user_input = json.loads(user_input)
         if 'correlation_id' in user_input:
             logger.info(f"Attempting to correlate user input for id: {user_input['correlation_id']}")
             # Extract the correlation_id and resolve the future in the DependencyResolver
@@ -90,7 +91,7 @@ class ConnectionManager:
                     
                 elif message_type == 'user_entry':
                     # Process user input with the correlation ID
-                    await self.process_user_input(data_json, websocket)
+                    await self.process_user_input(data_json)
                 else:
                     logger.warn(f"Unrecognized message type received: {message_type}")
                     # Handle other message types or errors
