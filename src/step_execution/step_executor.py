@@ -1,9 +1,9 @@
 import os
+import json
 import importlib
 from src.models.chain import Step
-import json
-from src.services.chain_service.dependency_resolver import DependencyResolver
 from src.core.logger import get_logger
+from src.services.chain_service.dependency_resolver import DependencyResolver
 from src.step_execution.step_result_saver import StepResultSaver
 from src.step_execution.variable_store import VariableStore
 
@@ -29,7 +29,7 @@ class StepExecutor:
         try:
             agent_module = importlib.import_module(f"src.agents.{agent_name}_agent")
             agent_class = getattr(agent_module, f"{agent_name.capitalize()}Agent")
-            return agent_class(run_id=self.run_id, save_dir=self.save_dir)
+            return agent_class(dependency_resolver=self.dependency_resolver, run_id=self.run_id, save_dir=self.save_dir)  # Pass dependency_resolver here
         except (ModuleNotFoundError, AttributeError) as e:
             logger.error(f"Error loading agent {agent_name}: {e}")
             raise ImportError(f"Agent {agent_name} could not be loaded.")
@@ -39,9 +39,6 @@ class StepExecutor:
         
         agent_name = step.agent.replace("-", "_")  # Replace hyphens with underscores if agent names contain them
         agent = self.load_agent(agent_name)
-        result = agent.execute(step, self.variables)
+        result = await agent.execute()  # Simplified to call agent's execute method directly
         
-        self.variable_store.update_variables(step.output.name, result) 
-        self.result_saver.save_step_result(step.step_id, result)
-        logger.info(f"Step {step.step_id} executed successfully")
         return result
