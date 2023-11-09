@@ -14,7 +14,7 @@ class AgentParams(BaseModel):
     prompt_text: Union[str, None] = Field(None, description="The prompt text if applicable.")
 
 class LlmQueryAgent:
-    def __init__(self, agent_params):
+    def __init__(self, agent_params, dependency_resolver=None):
         self.agent_params = AgentParams(**agent_params)
     
     def _run_completions_api_query(self, system_message):

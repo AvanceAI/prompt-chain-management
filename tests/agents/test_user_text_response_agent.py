@@ -1,7 +1,7 @@
 import pytest
 import asyncio
 from unittest.mock import AsyncMock
-from src.models.chain import Step, Dependency, AgentParams
+from src.models.chain import  AgentParams
 from src.agents.UserTextResponseAgent import UserTextResponseAgent
 
 # Fixture to create UserTextResponseAgent

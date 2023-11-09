@@ -5,7 +5,7 @@ from src.repository.openai.query import Query
 from src.repository.openai.completion_query import CompletionQuery
 from src.core.logger import get_logger
 from src.utils.dependency_resolver import resolve_dependencies
-from src.tools.web_scrape.scraper import scrape_text_with_selenium
+# from src.tools.web_scrape.scraper import scrape_text_with_selenium
 import multiprocessing
 from multiprocessing import Manager
 
@@ -18,7 +18,7 @@ class AgentParams(BaseModel):
     prompt_text: Union[str, None] = Field(None, description="The prompt text if applicable.")
 
 class MultiprocessingOutlineAgent:
-    def __init__(self, agent_params):
+    def __init__(self, agent_params, dependency_resolver=None):
         self.agent_params = AgentParams(**agent_params)
     
     def _run_completions_api_query(self, system_message):
